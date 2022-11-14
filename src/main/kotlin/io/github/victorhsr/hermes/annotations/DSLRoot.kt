@@ -7,4 +7,5 @@ package io.github.victorhsr.hermes.annotations
  * @author victorhsr
  */
 @Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.SOURCE)
 annotation class DSLRoot()
