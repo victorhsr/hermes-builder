@@ -1,14 +1,11 @@
-package io.github.victorhsr.hermes.annotations
+package io.github.victorhsr.hermes.gen
 
-import com.example.PersonDSL.PersonDSL.person
 import com.squareup.javapoet.*
-import lombok.Data
-import java.io.File
 import java.util.function.Consumer
 import java.util.stream.Stream
 import javax.lang.model.element.Modifier
 
-fun main(vararg x: String) {
+fun runPoC() {
 
     val codeBlock = CodeBlock
         .builder()
@@ -37,8 +34,7 @@ fun main(vararg x: String) {
     val javaFile = JavaFile.builder("com.example.PersonDSL", dsl)
         .build();
 
-    val file = File("dsl");
-    javaFile.writeTo(file);
+    javaFile.writeTo(System.out);
 }
 
 data class Person(

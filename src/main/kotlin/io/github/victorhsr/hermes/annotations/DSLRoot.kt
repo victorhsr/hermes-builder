@@ -8,4 +8,4 @@ package io.github.victorhsr.hermes.annotations
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
-annotation class DSLRoot()
+annotation class DSLRoot
