@@ -1,4 +1,4 @@
-package io.github.victorhsr.hermes.annotations
+package io.github.victorhsr.hermes.core.annotations
 
 /**
  * Mark a class to be used as the root of the generated DSL.
@@ -7,5 +7,5 @@ package io.github.victorhsr.hermes.annotations
  * @author victorhsr
  */
 @Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.RUNTIME)
 annotation class DSLRoot

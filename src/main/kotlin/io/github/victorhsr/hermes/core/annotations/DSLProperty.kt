@@ -1,4 +1,4 @@
-package io.github.victorhsr.hermes.annotations
+package io.github.victorhsr.hermes.core.annotations
 
 /**
  * Annotation used to customize the name of the method

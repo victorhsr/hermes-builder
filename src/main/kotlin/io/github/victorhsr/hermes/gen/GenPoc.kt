@@ -1,6 +1,7 @@
 package io.github.victorhsr.hermes.gen
 
 import com.squareup.javapoet.*
+import io.github.victorhsr.hermes.core.annotations.DSLRoot
 import java.util.function.Consumer
 import java.util.stream.Stream
 import javax.lang.model.element.Modifier
@@ -37,7 +38,8 @@ fun runPoC() {
     javaFile.writeTo(System.out);
 }
 
-data class Person(
+@DSLRoot
+class Person(
     val name: String? = null,
     val address: Address? = null
 )

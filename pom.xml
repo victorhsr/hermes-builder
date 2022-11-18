@@ -63,10 +63,16 @@
     </build>
 
     <dependencies>
+        <!--core-->
         <dependency>
             <groupId>com.squareup</groupId>
             <artifactId>javapoet</artifactId>
             <version>1.13.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.10.2</version>
         </dependency>
 
         <!--maven-->
