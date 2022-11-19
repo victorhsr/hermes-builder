@@ -8,5 +8,5 @@ package io.github.victorhsr.hermes.core.annotations
  * @author victorhsr
  */
 @Target(AnnotationTarget.FIELD)
-@Retention(AnnotationRetention.SOURCE)
-annotation class DSLProperty(val value:String)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class DSLProperty(val value: String)

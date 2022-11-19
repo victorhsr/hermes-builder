@@ -1,10 +1,12 @@
 package io.github.victorhsr.hermes.sample;
 
+import io.github.victorhsr.hermes.core.annotations.DSLProperty;
 import io.github.victorhsr.hermes.core.annotations.DSLRoot;
 
 @DSLRoot
 public class Person {
     private String name;
+    @DSLProperty("addressDefinitions")
     private Address address;
 
     public String getName() {

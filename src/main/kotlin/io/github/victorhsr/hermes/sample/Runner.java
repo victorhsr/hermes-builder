@@ -2,7 +2,8 @@ package io.github.victorhsr.hermes.sample;
 
 import static com.example.PersonDSL.AddressDSL.number;
 import static com.example.PersonDSL.AddressDSL.street;
-import static com.example.PersonDSL.PersonDSL.*;
+import static com.example.PersonDSL.PersonDSL.addressDefinitions;
+import static com.example.PersonDSL.PersonDSL.person;
 
 public class Runner {
 
@@ -13,9 +14,8 @@ public class Runner {
 
     public static Person buildPerson() {
         return person(
-                name("victor"),
-                address(
-                        street("street x"),
+                addressDefinitions(
+                        street(""),
                         number(42)
                 )
         );

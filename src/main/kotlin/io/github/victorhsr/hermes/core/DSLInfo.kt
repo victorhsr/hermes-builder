@@ -10,10 +10,11 @@ data class ClassInfo(
 
 data class AttributeInfo(
     val name: String,
-    val methodName: String,
+    val setterMethodName: String,
     val type: Class<*>,
     val wrapperClass: Class<*>,
     val hasOptions: Boolean,
     val hasDefaultConstructor: Boolean,
-    val isNativeClass: Boolean
+    val isNativeClass: Boolean,
+    val buildMethodName: String
 )

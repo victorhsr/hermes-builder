@@ -38,7 +38,7 @@ class DSLGenerator {
     }
 
     private fun buildMethodWithoutOptions(attributeInfo: AttributeInfo): MethodSpec {
-        return MethodSpec.methodBuilder(attributeInfo.name)
+        return MethodSpec.methodBuilder(attributeInfo.buildMethodName)
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
             .addParameter(attributeInfo.type, attributeInfo.name)
             .addCode(this.buildCodeBlock(attributeInfo))
@@ -47,7 +47,7 @@ class DSLGenerator {
     }
 
     private fun buildMethodWithOptions(attributeInfo: AttributeInfo): MethodSpec {
-        return MethodSpec.methodBuilder(attributeInfo.name)
+        return MethodSpec.methodBuilder(attributeInfo.buildMethodName)
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
             .addParameter(this.buildConsumerArrayType(attributeInfo.type), "options")
             .varargs()
@@ -70,7 +70,7 @@ class DSLGenerator {
 
         return CodeBlock
             .builder()
-            .addStatement("return (${wrapperSimpleName}) -> $wrapperSimpleName.${attributeInfo.methodName}(${attributeInfo.name})")
+            .addStatement("return (${wrapperSimpleName}) -> $wrapperSimpleName.${attributeInfo.setterMethodName}(${attributeInfo.name})")
             .build()
     }
 
@@ -83,7 +83,7 @@ class DSLGenerator {
             .builder()
             .addStatement("final $className ${attributeInfo.name} = new $className()")
             .addStatement("\$T.of(options).forEach(option -> option.accept(${attributeInfo.name}))", Stream::class.java)
-            .addStatement("return (${wrapperSimpleName}) -> $wrapperSimpleName.${attributeInfo.methodName}(${attributeInfo.name})")
+            .addStatement("return (${wrapperSimpleName}) -> $wrapperSimpleName.${attributeInfo.setterMethodName}(${attributeInfo.name})")
             .build()
     }
 

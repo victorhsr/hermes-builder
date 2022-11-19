@@ -1,6 +1,7 @@
 package io.github.victorhsr.hermes.core.reflection
 
 import io.github.victorhsr.hermes.core.AttributeInfo
+import io.github.victorhsr.hermes.core.annotations.DSLProperty
 import java.lang.reflect.Field
 
 class AttributeInfoBuilder {
@@ -12,13 +13,25 @@ class AttributeInfoBuilder {
 
         return AttributeInfo(
             name = field.name,
-            methodName = "set${field.name.replaceFirstChar { it.titlecase() }}",
+            buildMethodName = this.resolveBuildMethodName(field),
+            setterMethodName = "set${field.name.replaceFirstChar { it.titlecase() }}",
             type = attributeClass,
             wrapperClass = wrapperClass,
             hasOptions = hasDefaultConstructor && !isNativeClass,
             hasDefaultConstructor = hasDefaultConstructor,
             isNativeClass = isNativeClass
         )
+    }
+
+    private fun resolveBuildMethodName(field: Field): String {
+        val annotations = field.annotations
+        val declaredAnnotations = field.declaredAnnotations
+
+        println("annotations = ${annotations}")
+        println("declaredAnnotations = ${declaredAnnotations}")
+
+        val annotation = field.getAnnotation(DSLProperty::class.java) ?: return field.name
+        return annotation.value
     }
 
     private fun isNativeClass(attributeClass: Class<*>): Boolean {
