@@ -1,21 +1,28 @@
 package io.github.victorhsr.hermes.core
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.victorhsr.hermes.core.gen.DSLGenerator
-import io.github.victorhsr.hermes.core.reflection.lookForDSLRootClasses
-import io.github.victorhsr.hermes.gen.Person
+import io.github.victorhsr.hermes.core.reflection.AttributeInfoBuilder
+import io.github.victorhsr.hermes.core.reflection.ClassInfoBuilder
+import io.github.victorhsr.hermes.core.reflection.Scanner
 
 fun main() {
-    println(Person::class.java.simpleName)
-    //HermesRunner().genDSLForPackage("io.github.victorhsr")
+    HermesRunner().genDSLForPackage("io.github.victorhsr")
 }
 
 class HermesRunner {
 
+    private val scanner = Scanner()
+    private val attributeInfoBuilder = AttributeInfoBuilder()
+    private val classInfoBuilder = ClassInfoBuilder(attributeInfoBuilder)
+
     private val dslGenerator = DSLGenerator()
 
     fun genDSLForPackage(packageToScan: String) {
-        val classes = lookForDSLRootClasses(packageToScan)
-        this.dslGenerator.generate(classes)
+        val rootClasses = this.scanner.lookForDSLRootClasses(packageToScan)
+        val classInfoList = this.classInfoBuilder.processRootClasses(rootClasses)
+
+        this.dslGenerator.generate(classInfoList)
     }
 
 }

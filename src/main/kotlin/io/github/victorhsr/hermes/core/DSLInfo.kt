@@ -1,0 +1,19 @@
+package io.github.victorhsr.hermes.core
+
+data class ClassInfo(
+    val type: Class<*>,
+    val name: String,
+    val parameterName: String,
+    val isRoot: Boolean,
+    val attributes: List<AttributeInfo>
+)
+
+data class AttributeInfo(
+    val name: String,
+    val methodName: String,
+    val type: Class<*>,
+    val wrapperClass: Class<*>,
+    val hasOptions: Boolean,
+    val hasDefaultConstructor: Boolean,
+    val isNativeClass: Boolean
+)
