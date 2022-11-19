@@ -22,7 +22,7 @@ class DSLGenerator {
 
     fun generate(classInfo: ClassInfo) {
         val methods = classInfo.attributes.map(this::buildMethod)
-        val clazz = this.buildClass(classInfo, methods.filter(Objects::nonNull) as List<MethodSpec>)
+        val clazz = this.buildClass(classInfo, methods)
 
         val javaFile = JavaFile.builder("com.example.PersonDSL", clazz)
             .build();
@@ -30,15 +30,14 @@ class DSLGenerator {
         javaFile.writeTo(File("dsl"));
     }
 
-    private fun buildMethod(attributeInfo: AttributeInfo): MethodSpec? {
+    private fun buildMethod(attributeInfo: AttributeInfo): MethodSpec {
         if (attributeInfo.hasOptions) {
             return this.buildMethodWithOptions(attributeInfo)
-        } else {
-            return this.buildMethodWithoutOptions(attributeInfo)
         }
+        return this.buildMethodWithoutOptions(attributeInfo)
     }
 
-    private fun buildMethodWithoutOptions(attributeInfo: AttributeInfo): MethodSpec? {
+    private fun buildMethodWithoutOptions(attributeInfo: AttributeInfo): MethodSpec {
         return MethodSpec.methodBuilder(attributeInfo.name)
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
             .addParameter(attributeInfo.type, attributeInfo.name)
@@ -54,6 +53,7 @@ class DSLGenerator {
             .varargs()
             .addCode(this.buildCodeBlock(attributeInfo))
             .returns(this.buildConsumerType(attributeInfo.wrapperClass))
+            .addAnnotation(SafeVarargs::class.java)
             .build()
     }
 
@@ -87,13 +87,28 @@ class DSLGenerator {
             .build()
     }
 
-    private fun buildRootMethod(methodName: String, returnType: Class<*>): MethodSpec? {
-        return MethodSpec.methodBuilder(methodName)
+    private fun buildRootMethod(classInfo: ClassInfo): MethodSpec {
+        return MethodSpec.methodBuilder(classInfo.parameterName)
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            .returns(returnType)
-            .addParameter(this.buildConsumerArrayType(returnType), "options")
+            .returns(classInfo.type)
+            .addParameter(this.buildConsumerArrayType(classInfo.type), "options")
             .varargs(true)
-            .addCode(this.buildRootMethodCode(returnType))
+            .addCode(this.buildCodeBlock(classInfo))
+            .addAnnotation(SafeVarargs::class.java)
+            .build()
+    }
+
+    private fun buildCodeBlock(classInfo: ClassInfo): CodeBlock {
+        val classDeclaration = classInfo.type.name
+
+        return CodeBlock
+            .builder()
+            .addStatement("final $classDeclaration ${classInfo.parameterName} = new $classDeclaration()")
+            .addStatement(
+                "\$T.of(options).forEach(option -> option.accept(${classInfo.parameterName}))",
+                Stream::class.java
+            )
+            .addStatement("return ${classInfo.parameterName}")
             .build()
     }
 
@@ -110,9 +125,15 @@ class DSLGenerator {
     }
 
     private fun buildClass(classInfo: ClassInfo, methods: List<MethodSpec>): TypeSpec {
+        var methodsToUse = methods
+
+        if (classInfo.isRoot) {
+            methodsToUse = methods + this.buildRootMethod(classInfo)
+        }
+
         return TypeSpec.classBuilder(this.resolveClassName(classInfo.type))
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-            .addMethods(methods)
+            .addMethods(methodsToUse)
             .build();
     }
 

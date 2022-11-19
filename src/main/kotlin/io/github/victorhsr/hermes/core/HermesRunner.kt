@@ -1,6 +1,5 @@
 package io.github.victorhsr.hermes.core
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.victorhsr.hermes.core.gen.DSLGenerator
 import io.github.victorhsr.hermes.core.reflection.AttributeInfoBuilder
 import io.github.victorhsr.hermes.core.reflection.ClassInfoBuilder
