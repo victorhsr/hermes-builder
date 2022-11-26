@@ -1,40 +1,55 @@
 package io.github.victorhsr.hermes.maven
 
-import javax.annotation.processing.AbstractProcessor
-import javax.annotation.processing.RoundEnvironment
-import javax.annotation.processing.SupportedAnnotationTypes
-import javax.annotation.processing.SupportedSourceVersion
+import com.google.auto.service.AutoService
+import io.github.victorhsr.hermes.core.HermesRunnerFactory
+import io.github.victorhsr.hermes.maven.DSLProcessor.Companion.DSL_ROOT_QUALIFIED_NAME
+import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
-import javax.lang.model.type.DeclaredType
 import javax.tools.Diagnostic
 
-@SupportedAnnotationTypes("io.github.victorhsr.hermes.core.annotations.DSLRoot")
+@SupportedAnnotationTypes(DSL_ROOT_QUALIFIED_NAME)
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
+@AutoService(Processor::class)
 class DSLProcessor : AbstractProcessor() {
 
-    override fun process(annotations: MutableSet<out TypeElement>, roundEnv: RoundEnvironment): Boolean {
+    companion object {
+        const val DSL_ROOT_QUALIFIED_NAME = "io.github.victorhsr.hermes.core.annotations.DSLRoot"
+    }
 
-        val annotation = annotations.first()
-        val annotatedElements = roundEnv.getElementsAnnotatedWith(annotation)
+    private val hermesRunner = HermesRunnerFactory.create()
 
-        val (annotatedClasses, annotatedOtherElements) = annotatedElements
-            .map { it as DeclaredType }
-            .partition { it.asElement().kind == ElementKind.CLASS }
+    override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
+
+        val (annotatedClasses, annotatedOtherElements) = this.separateAnnotatedElements(roundEnv, annotations)
 
         if (annotatedOtherElements.isNotEmpty()) {
-            annotatedOtherElements.forEach {
-                processingEnv.messager.printMessage(
-                    Diagnostic.Kind.ERROR,
-                    "@DSLRoot is supposed to be used in classes, but it was found in: $it"
-                )
-            }
+            this.logInvalidElements(annotatedOtherElements)
         }
 
-        annotatedClasses.get(0)
-            .
+        this.hermesRunner.genDSL(annotatedClasses)
+        return false;
+    }
 
-        TODO("Not yet implemented")
+    private fun separateAnnotatedElements(
+        roundEnv: RoundEnvironment,
+        annotations: Set<TypeElement>
+    ): Pair<List<TypeElement>, List<TypeElement>> {
+        val annotation = annotations.firstOrNull() ?: return Pair(listOf(), listOf())
+
+        return roundEnv
+            .getElementsAnnotatedWith(annotation)
+            .map { it as TypeElement }
+            .partition { it.kind == ElementKind.CLASS }
+    }
+
+    private fun logInvalidElements(annotatedOtherElements: List<TypeElement>) {
+        annotatedOtherElements.forEach {
+            processingEnv.messager.printMessage(
+                Diagnostic.Kind.ERROR,
+                "${DSL_ROOT_QUALIFIED_NAME} is supposed to be used in classes, but it was found in: $it"
+            )
+        }
     }
 }

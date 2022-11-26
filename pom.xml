@@ -7,7 +7,7 @@
     <groupId>io.github.victorhsr</groupId>
     <artifactId>hermes-maven-plugin</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>maven-plugin</packaging>
+    <packaging>jar</packaging>
 
     <properties>
         <kotlin.code.style>official</kotlin.code.style>
@@ -15,6 +15,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <auto-service.version>1.0.1</auto-service.version>
     </properties>
 
     <build>
@@ -25,6 +26,27 @@
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <version>1.7.10</version>
                 <executions>
+                    <execution>
+                        <id>kapt</id>
+                        <goals>
+                            <goal>kapt</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirs>
+                                <sourceDir>src/main/kotlin</sourceDir>
+                            </sourceDirs>
+                            <annotationProcessorPaths>
+                                <!-- Specify your annotation processors here. -->
+                                <annotationProcessorPath>
+                                    <groupId>com.google.auto.service</groupId>
+                                    <artifactId>auto-service</artifactId>
+                                    <version>${auto-service.version}</version>
+                                </annotationProcessorPath>
+                            </annotationProcessorPaths>
+                        </configuration>
+                    </execution>
+
+
                     <execution>
                         <id>compile</id>
                         <phase>compile</phase>
@@ -112,6 +134,12 @@
         </dependency>
 
         <!--maven-->
+        <dependency>
+            <groupId>com.google.auto.service</groupId>
+            <artifactId>auto-service</artifactId>
+            <version>1.0.1</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>

@@ -3,8 +3,26 @@ package io.github.victorhsr.hermes.core.reflection
 import io.github.victorhsr.hermes.core.AttributeInfo
 import io.github.victorhsr.hermes.core.annotations.DSLProperty
 import java.lang.reflect.Field
+import javax.lang.model.element.Element
 
 class AttributeInfoBuilder {
+
+    fun buildAttributeInfo(attribute: Element): AttributeInfo {
+        val attributeClass = attribute.asType().toString()
+        val hasDefaultConstructor = this.hasDefaultConstructor(attributeClass)
+        val isNativeClass = this.isNativeClass(attributeClass)
+
+        return AttributeInfo(
+            name = field.name,
+            buildMethodName = this.resolveBuildMethodName(field),
+            setterMethodName = "set${field.name.replaceFirstChar { it.titlecase() }}",
+            type = attributeClass,
+            wrapperClass = wrapperClass,
+            hasOptions = hasDefaultConstructor && !isNativeClass,
+            hasDefaultConstructor = hasDefaultConstructor,
+            isNativeClass = isNativeClass
+        )
+    }
 
     fun buildAttributeInfo(wrapperClass: Class<*>, field: Field): AttributeInfo {
         val attributeClass = field.type

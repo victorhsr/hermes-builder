@@ -2,34 +2,43 @@ package io.github.victorhsr.hermes.core.reflection
 
 import io.github.victorhsr.hermes.core.ClassInfo
 import java.util.*
+import javax.lang.model.element.Element
+import javax.lang.model.element.ElementKind
+import javax.lang.model.element.TypeElement
 
 class ClassInfoBuilder(private val attributeInfoBuilder: AttributeInfoBuilder) {
 
-    private val classMap = mutableMapOf<Class<*>, ClassInfo>()
+    private val classMap = mutableMapOf<String, ClassInfo>()
 
-    fun processRootClasses(rootClasses: Set<Class<*>>): List<ClassInfo> {
+    fun processRootClasses(rootClasses: List<TypeElement>): List<ClassInfo> {
         rootClasses.forEach(this::processRootClass)
         return classMap.values.toList()
     }
 
-    private fun processRootClass(clazz: Class<*>) {
+    private fun processRootClass(clazz: TypeElement) {
         this.buildClassInfo(clazz, true)
     }
 
-    private fun buildClassInfo(clazz: Class<*>, isRootClass: Boolean) {
-        if (this.classMap.containsKey(clazz)) {
+    private fun buildClassInfo(clazz: TypeElement, isRootClass: Boolean) {
+
+        val fullQualifiedClassName = clazz.qualifiedName.toString()
+
+        if (this.classMap.containsKey(fullQualifiedClassName)) {
             return
         }
 
+        val simpleName = clazz.simpleName.toString()
+
         val classInfo = ClassInfo(
-            type = clazz,
-            name = clazz.simpleName,
-            parameterName = clazz.simpleName.replaceFirstChar { it.lowercase(Locale.getDefault()) },
+            fullQualifiedName = fullQualifiedClassName,
+            packageName = fullQualifiedClassName.substring(0, fullQualifiedClassName.lastIndexOf(".")),
+            name = fullQualifiedClassName,
+            parameterName = simpleName.replaceFirstChar { it.lowercase(Locale.getDefault()) },
             isRoot = isRootClass,
-            attributes = clazz.declaredFields.map { this.attributeInfoBuilder.buildAttributeInfo(clazz, it) }
+            attributes = this.resolveFields(clazz).map { this.attributeInfoBuilder.buildAttributeInfo(it) }
         )
 
-        this.classMap[clazz] = classInfo
+        this.classMap[fullQualifiedClassName] = classInfo
 
         classInfo.attributes.forEach {
             if (it.hasOptions) {
@@ -38,5 +47,21 @@ class ClassInfoBuilder(private val attributeInfoBuilder: AttributeInfoBuilder) {
         }
     }
 
+    private fun resolveFields(clazz: TypeElement): List<Element> {
+
+        val getMethodsMap = clazz.enclosedElements
+            .filter { it.kind == ElementKind.METHOD }
+            .filter { it.simpleName.startsWith("get") }
+            .groupBy { it.simpleName.toString() }
+
+        return clazz.enclosedElements
+            .filter { it.kind.isField }
+            .filter { getMethodsMap.containsKey(this.buildGetMethodName(it.simpleName.toString())) }
+            .toList()
+    }
+
+    private fun buildGetMethodName(name: String): String {
+        return "get${name.replaceFirstChar { it.titlecase(Locale.getDefault()) }}"
+    }
 
 }

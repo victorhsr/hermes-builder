@@ -1,7 +1,8 @@
 package io.github.victorhsr.hermes.core
 
 data class ClassInfo(
-    val type: Class<*>,
+    val fullQualifiedName: String,
+    val packageName: String,
     val name: String,
     val parameterName: String,
     val isRoot: Boolean,
