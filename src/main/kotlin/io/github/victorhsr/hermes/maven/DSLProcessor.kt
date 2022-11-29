@@ -19,7 +19,6 @@ class DSLProcessor : AbstractProcessor() {
     }
 
     private val hermesRunner = HermesRunnerFactory.create()
-    private val elementDefinitionsBuilder = ElementDefinitionsBuilder()
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
 
@@ -31,9 +30,11 @@ class DSLProcessor : AbstractProcessor() {
             this.logInvalidElements(annotatedOtherElements)
         }
 
-        this.elementDefinitionsBuilder.resolveElementDefinitions(annotatedClasses)
+        val elementDefinitionsBuilder = ElementDefinitionsBuilder(this.processingEnv)
+        val resolveElementDefinitions = elementDefinitionsBuilder.resolveElementDefinitions(annotatedClasses)
+        println("resolveElementDefinitions = ${resolveElementDefinitions}")
 
-        this.hermesRunner.genDSL(annotatedClasses, this.processingEnv)
+        //this.hermesRunner.genDSL(annotatedClasses, this.processingEnv)
         return false;
     }
 

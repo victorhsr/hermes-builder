@@ -6,13 +6,13 @@ import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
+import javax.lang.model.util.ElementFilter
 
 class ElementDefinitionsBuilder(private val processingEnvironment: ProcessingEnvironment) {
 
     private val classMap = mutableMapOf<String, ClassElementDefinitions>()
 
     fun resolveElementDefinitions(annotatedClasses: List<TypeElement>): List<ClassElementDefinitions> {
-        // refactor to look like ClassInfoBuilder flow
         annotatedClasses.forEach(this::processAnnotatedClass)
         return this.classMap.values.toList()
     }
@@ -36,38 +36,55 @@ class ElementDefinitionsBuilder(private val processingEnvironment: ProcessingEnv
 
         this.classMap[fullQualifiedClassName] = classElementDefinitions
 
-        classElementDefinitions.accessibleFields.forEach{
-
+        classElementDefinitions.accessibleFields.forEach {
+            if (it.shouldClassBeGenerated) {
+                this.buildClassElementDefinitions(it.element as TypeElement, false)
+            }
         }
-
     }
 
     private fun resolveAccessibleFields(clazz: TypeElement): List<FieldElementDefinitions> {
-        return this.resolveFields(clazz)
-            .filter { it.getAnnotation(DSLIgnore::class.java) == null }
+        return this.resolveFields(clazz).filter { it.getAnnotation(DSLIgnore::class.java) == null }
             .map { this.buildFieldElementDefinitions(it) }
     }
 
     private fun buildFieldElementDefinitions(fieldElement: Element): FieldElementDefinitions {
-        val fieldClassElement = this.processingEnvironment.elementUtils.getTypeElement(fieldElement.asType().toString())
+        val isPrimitiveType = fieldElement.asType().kind.isPrimitive
+        val fieldClassElement =
+            if (!isPrimitiveType) {
+                this.processingEnvironment.elementUtils.getTypeElement(fieldElement.asType().toString())
+            } else null
+
+        val shouldClassBeGenerated = !isPrimitiveType
+                && this.hasDefaultConstructor(fieldClassElement!!)
+                && !this.isNativeClass(fieldClassElement!!)
+
         return FieldElementDefinitions(
             fieldName = fieldElement.simpleName.toString(),
-            element = fieldClassElement,
-            shouldClassBeGenerated = this.hasDefaultConstructor(fie) && !this.isNativeClass(),
+            element = if (isPrimitiveType) fieldElement else fieldClassElement!!,
+            isPrimitiveType = isPrimitiveType,
+            shouldClassBeGenerated = shouldClassBeGenerated,
         )
+    }
+
+    private fun isNativeClass(element: TypeElement): Boolean {
+        val qualifiedName = element.qualifiedName
+
+        return (qualifiedName.startsWith("java.") || qualifiedName.startsWith("sun."))
+    }
+
+    private fun hasDefaultConstructor(element: TypeElement): Boolean {
+        return ElementFilter.constructorsIn(element.enclosedElements).any { it.parameters.isEmpty() }
     }
 
     private fun resolveFields(clazz: TypeElement): List<Element> {
 
-        val getMethodsMap = clazz.enclosedElements
-            .filter { it.kind == ElementKind.METHOD }
-            .filter { it.simpleName.startsWith("get") }
-            .groupBy { it.simpleName.toString() }
+        val getMethodsMap =
+            clazz.enclosedElements.filter { it.kind == ElementKind.METHOD }.filter { it.simpleName.startsWith("get") }
+                .groupBy { it.simpleName.toString() }
 
-        return clazz.enclosedElements
-            .filter { it.kind.isField }
-            .filter { getMethodsMap.containsKey(this.buildGetMethodName(it.simpleName.toString())) }
-            .toList()
+        return clazz.enclosedElements.filter { it.kind.isField }
+            .filter { getMethodsMap.containsKey(this.buildGetMethodName(it.simpleName.toString())) }.toList()
     }
 
     private fun buildGetMethodName(name: String): String {
