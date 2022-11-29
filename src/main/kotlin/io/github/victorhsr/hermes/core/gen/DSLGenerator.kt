@@ -17,11 +17,11 @@ class DSLGenerator(private val methodSpecGenerator: MethodSpecGenerator) {
         val methods = classInfo.attributes.map(this.methodSpecGenerator::buildMethod)
         val clazz = this.buildClass(classInfo, methods)
 
-        val javaFile = JavaFile.builder(classInfo.type.packageName, clazz)
-            .build();
-
-        javaFile.writeTo(output);
-        println("written ${classInfo.name} to ${output}")
+//        val javaFile = JavaFile.builder(classInfo.type.packageName, clazz)
+//            .build();
+//
+//        javaFile.writeTo(output);
+//        println("written ${classInfo.name} to ${output}")
     }
 
     private fun buildClass(classInfo: ClassInfo, methods: List<MethodSpec>): TypeSpec {
@@ -31,10 +31,12 @@ class DSLGenerator(private val methodSpecGenerator: MethodSpecGenerator) {
             methodsToUse = methods + this.methodSpecGenerator.buildRootMethod(classInfo)
         }
 
-        return TypeSpec.classBuilder(this.resolveClassName(classInfo.type))
-            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-            .addMethods(methodsToUse)
-            .build();
+        return TypeSpec.classBuilder("").build()
+
+//        return TypeSpec.classBuilder(this.resolveClassName(classInfo.type))
+//            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+//            .addMethods(methodsToUse)
+//            .build();
     }
 
     private fun resolveClassName(clazz: Class<*>) = "${clazz.simpleName}DSL"

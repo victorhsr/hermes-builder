@@ -43,8 +43,8 @@ class MethodSpecGenerator(private val codeBlockGenerator: CodeBlockGenerator) {
     fun buildRootMethod(classInfo: ClassInfo): MethodSpec {
         return MethodSpec.methodBuilder(classInfo.parameterName)
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            .returns(classInfo.type)
-            .addParameter(this.buildConsumerArrayType(classInfo.type), "options")
+            .returns(String.javaClass)
+            .addParameter(this.buildConsumerArrayType(String.javaClass), "options")
             .varargs(true)
             .addCode(this.codeBlockGenerator.buildCodeBlock(classInfo))
             .addAnnotation(SafeVarargs::class.java)

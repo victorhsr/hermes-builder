@@ -3,25 +3,52 @@ package io.github.victorhsr.hermes.core.reflection
 import io.github.victorhsr.hermes.core.AttributeInfo
 import io.github.victorhsr.hermes.core.annotations.DSLProperty
 import java.lang.reflect.Field
+import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
+import javax.lang.model.type.DeclaredType
+import javax.lang.model.util.ElementFilter
+
 
 class AttributeInfoBuilder {
 
-    fun buildAttributeInfo(attribute: Element): AttributeInfo {
-        val attributeClass = attribute.asType().toString()
-        val hasDefaultConstructor = this.hasDefaultConstructor(attributeClass)
-        val isNativeClass = this.isNativeClass(attributeClass)
+    fun buildAttributeInfo(attribute: Element, processingEnvironment: ProcessingEnvironment): AttributeInfo {
+        println("aatribute $attribute")
+        val constructorsIn = ElementFilter.constructorsIn(setOf(attribute))
+
+        val attributeTypeString = attribute.asType().toString()
+        val typeElement = processingEnvironment.elementUtils.getTypeElement(attributeTypeString)
+        val enclosedElements = typeElement.enclosedElements
+        println("enclosedElements = ${enclosedElements}")
+        println("typeElement = ${typeElement}")
+
+//        i decided to not worry about having or not a default constructor neither if
+//            it is about a native class, if the user dont want it to be generated
+//                he must annotate the attribute with @DSLIgnore
+        val attributeClass = attributeTypeString
+//        val hasDefaultConstructor = this.hasDefaultConstructor(attributeClass)
+//        val isNativeClass = this.isNativeClass(attributeClass)
 
         return AttributeInfo(
-            name = field.name,
-            buildMethodName = this.resolveBuildMethodName(field),
-            setterMethodName = "set${field.name.replaceFirstChar { it.titlecase() }}",
-            type = attributeClass,
-            wrapperClass = wrapperClass,
-            hasOptions = hasDefaultConstructor && !isNativeClass,
-            hasDefaultConstructor = hasDefaultConstructor,
-            isNativeClass = isNativeClass
+            name = "field.name",
+            buildMethodName = "this.resolveBuildMethodName(field)",
+            setterMethodName = "set",
+            type = String.javaClass,
+            wrapperClass = Int.javaClass,
+            hasOptions = false,
+            hasDefaultConstructor = false,
+            isNativeClass = false
         )
+
+//        return AttributeInfo(
+//            name = field.name,
+//            buildMethodName = this.resolveBuildMethodName(field),
+//            setterMethodName = "set${field.name.replaceFirstChar { it.titlecase() }}",
+//            type = attributeClass,
+//            wrapperClass = wrapperClass,
+//            hasOptions = hasDefaultConstructor && !isNativeClass,
+//            hasDefaultConstructor = hasDefaultConstructor,
+//            isNativeClass = isNativeClass
+//        )
     }
 
     fun buildAttributeInfo(wrapperClass: Class<*>, field: Field): AttributeInfo {

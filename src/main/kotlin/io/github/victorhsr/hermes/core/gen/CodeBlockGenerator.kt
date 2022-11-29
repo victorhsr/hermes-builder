@@ -16,7 +16,7 @@ class CodeBlockGenerator {
     }
 
     fun buildCodeBlock(classInfo: ClassInfo): CodeBlock {
-        val classDeclaration = classInfo.type.name
+        val classDeclaration = String.javaClass
 
         return CodeBlock
             .builder()
