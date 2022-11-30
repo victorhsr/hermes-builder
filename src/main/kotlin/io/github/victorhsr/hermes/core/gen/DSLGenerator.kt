@@ -4,24 +4,21 @@ import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.TypeSpec
 import io.github.victorhsr.hermes.core.ClassInfo
-import java.io.File
+import javax.annotation.processing.Filer
 import javax.lang.model.element.Modifier
 
 class DSLGenerator(private val methodSpecGenerator: MethodSpecGenerator) {
 
-    fun generate(classInfoList: List<ClassInfo>, output: File) {
-        classInfoList.forEach { this.generate(it, output) }
+    fun generate(classInfoList: List<ClassInfo>, filer: Filer) {
+        classInfoList.forEach { this.generate(it, filer) }
     }
 
-    private fun generate(classInfo: ClassInfo, output: File) {
+    private fun generate(classInfo: ClassInfo, filer: Filer) {
         val methods = classInfo.attributes.map(this.methodSpecGenerator::buildMethod)
         val clazz = this.buildClass(classInfo, methods)
 
-//        val javaFile = JavaFile.builder(classInfo.type.packageName, clazz)
-//            .build();
-//
-//        javaFile.writeTo(output);
-//        println("written ${classInfo.name} to ${output}")
+        val javaFile = JavaFile.builder(classInfo.packageName, clazz).build();
+        javaFile.writeTo(filer)
     }
 
     private fun buildClass(classInfo: ClassInfo, methods: List<MethodSpec>): TypeSpec {
@@ -31,14 +28,10 @@ class DSLGenerator(private val methodSpecGenerator: MethodSpecGenerator) {
             methodsToUse = methods + this.methodSpecGenerator.buildRootMethod(classInfo)
         }
 
-        return TypeSpec.classBuilder("").build()
-
-//        return TypeSpec.classBuilder(this.resolveClassName(classInfo.type))
-//            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-//            .addMethods(methodsToUse)
-//            .build();
+        return TypeSpec.classBuilder("${classInfo.simpleName}DSL")
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            .addMethods(methodsToUse)
+            .build();
     }
-
-    private fun resolveClassName(clazz: Class<*>) = "${clazz.simpleName}DSL"
 
 }

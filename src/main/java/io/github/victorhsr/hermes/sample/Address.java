@@ -1,8 +1,9 @@
 package io.github.victorhsr.hermes.sample;
 
 public class Address {
+
     private String street;
-    private int number;
+    private int houseNumber;
 
     public String getStreet() {
         return street;
@@ -12,19 +13,19 @@ public class Address {
         this.street = street;
     }
 
-    public int getNumber() {
-        return number;
+    public int getHouseNumber() {
+        return houseNumber;
     }
 
-    public void setNumber(int number) {
-        this.number = number;
+    public void setHouseNumber(int houseNumber) {
+        this.houseNumber = houseNumber;
     }
 
     @Override
     public String toString() {
         return "Address{" +
                 "street='" + street + '\'' +
-                ", number=" + number +
+                ", number=" + houseNumber +
                 '}';
     }
 }

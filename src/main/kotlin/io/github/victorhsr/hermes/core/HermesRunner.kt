@@ -1,18 +1,18 @@
 package io.github.victorhsr.hermes.core
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import io.github.victorhsr.hermes.core.element.ClassElementDefinition
 import io.github.victorhsr.hermes.core.gen.DSLGenerator
-import io.github.victorhsr.hermes.core.reflection.ClassInfoBuilder
-import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.element.TypeElement
+import javax.annotation.processing.Filer
 
 class HermesRunner(
     private val classInfoBuilder: ClassInfoBuilder,
     private val dslGenerator: DSLGenerator
 ) {
 
-    fun genDSL(rootClasses: List<TypeElement>, processingEnv: ProcessingEnvironment) {
-        val classInfoList = this.classInfoBuilder.processRootClasses(rootClasses, processingEnv)
-//        this.dslGenerator.generate(classInfoList)
+    fun genDSL(elementDefinitions: List<ClassElementDefinition>, filer: Filer) {
+        val classInfoList = this.classInfoBuilder.processRootClasses(elementDefinitions)
+        this.dslGenerator.generate(classInfoList, filer)
     }
 
 }

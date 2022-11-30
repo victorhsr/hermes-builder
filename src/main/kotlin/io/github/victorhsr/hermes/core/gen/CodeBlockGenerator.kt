@@ -3,7 +3,6 @@ package io.github.victorhsr.hermes.core.gen
 import com.squareup.javapoet.CodeBlock
 import io.github.victorhsr.hermes.core.AttributeInfo
 import io.github.victorhsr.hermes.core.ClassInfo
-import java.util.*
 import java.util.stream.Stream
 
 class CodeBlockGenerator {
@@ -16,7 +15,7 @@ class CodeBlockGenerator {
     }
 
     fun buildCodeBlock(classInfo: ClassInfo): CodeBlock {
-        val classDeclaration = String.javaClass
+        val classDeclaration = classInfo.simpleName
 
         return CodeBlock
             .builder()
@@ -31,25 +30,22 @@ class CodeBlockGenerator {
 
 
     private fun buildCodeBlockWithoutOptions(attributeInfo: AttributeInfo): CodeBlock {
-        val wrapperSimpleName =
-            attributeInfo.wrapperClass.simpleName.replaceFirstChar { it.lowercase(Locale.getDefault()) }
+        val wrapperClassParamName = attributeInfo.wrapperClassParamName
 
         return CodeBlock
             .builder()
-            .addStatement("return (${wrapperSimpleName}) -> $wrapperSimpleName.${attributeInfo.setterMethodName}(${attributeInfo.name})")
+            .addStatement("return (${wrapperClassParamName}) -> $wrapperClassParamName.${attributeInfo.setterMethodName}(${attributeInfo.name})")
             .build()
     }
 
     private fun buildCodeBlockWithOptions(attributeInfo: AttributeInfo): CodeBlock {
-        val className = attributeInfo.type.name
-        val wrapperSimpleName =
-            attributeInfo.wrapperClass.simpleName.replaceFirstChar { it.lowercase(Locale.getDefault()) }
+        val wrapperClassParamName = attributeInfo.wrapperClassParamName
 
         return CodeBlock
             .builder()
-            .addStatement("final $className ${attributeInfo.name} = new $className()")
+            .addStatement("final ${attributeInfo.className} ${attributeInfo.name} = new ${attributeInfo.className}()")
             .addStatement("\$T.of(options).forEach(option -> option.accept(${attributeInfo.name}))", Stream::class.java)
-            .addStatement("return (${wrapperSimpleName}) -> $wrapperSimpleName.${attributeInfo.setterMethodName}(${attributeInfo.name})")
+            .addStatement("return (${wrapperClassParamName}) -> $wrapperClassParamName.${attributeInfo.setterMethodName}(${attributeInfo.name})")
             .build()
     }
 

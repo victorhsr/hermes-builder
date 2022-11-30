@@ -1,6 +1,7 @@
-package io.github.victorhsr.hermes.maven
+package io.github.victorhsr.hermes.core.element
 
 import io.github.victorhsr.hermes.core.annotations.DSLIgnore
+import io.github.victorhsr.hermes.core.annotations.DSLProperty
 import java.util.*
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
@@ -10,9 +11,9 @@ import javax.lang.model.util.ElementFilter
 
 class ElementDefinitionsBuilder(private val processingEnvironment: ProcessingEnvironment) {
 
-    private val classMap = mutableMapOf<String, ClassElementDefinitions>()
+    private val classMap = mutableMapOf<String, ClassElementDefinition>()
 
-    fun resolveElementDefinitions(annotatedClasses: List<TypeElement>): List<ClassElementDefinitions> {
+    fun resolveElementDefinitions(annotatedClasses: List<TypeElement>): List<ClassElementDefinition> {
         annotatedClasses.forEach(this::processAnnotatedClass)
         return this.classMap.values.toList()
     }
@@ -28,27 +29,27 @@ class ElementDefinitionsBuilder(private val processingEnvironment: ProcessingEnv
             return
         }
 
-        val classElementDefinitions = ClassElementDefinitions(
+        val classElementDefinition = ClassElementDefinition(
             element = typeElement,
             wasAnnotated = isAnnotatedClass,
             accessibleFields = this.resolveAccessibleFields(typeElement)
         )
 
-        this.classMap[fullQualifiedClassName] = classElementDefinitions
+        this.classMap[fullQualifiedClassName] = classElementDefinition
 
-        classElementDefinitions.accessibleFields.forEach {
+        classElementDefinition.accessibleFields.forEach {
             if (it.shouldClassBeGenerated) {
                 this.buildClassElementDefinitions(it.element as TypeElement, false)
             }
         }
     }
 
-    private fun resolveAccessibleFields(clazz: TypeElement): List<FieldElementDefinitions> {
+    private fun resolveAccessibleFields(clazz: TypeElement): List<FieldElementDefinition> {
         return this.resolveFields(clazz).filter { it.getAnnotation(DSLIgnore::class.java) == null }
             .map { this.buildFieldElementDefinitions(it) }
     }
 
-    private fun buildFieldElementDefinitions(fieldElement: Element): FieldElementDefinitions {
+    private fun buildFieldElementDefinitions(fieldElement: Element): FieldElementDefinition {
         val isPrimitiveType = fieldElement.asType().kind.isPrimitive
         val fieldClassElement =
             if (!isPrimitiveType) {
@@ -59,11 +60,19 @@ class ElementDefinitionsBuilder(private val processingEnvironment: ProcessingEnv
                 && this.hasDefaultConstructor(fieldClassElement!!)
                 && !this.isNativeClass(fieldClassElement!!)
 
-        return FieldElementDefinitions(
+        var customBuildName: String? = null
+
+        val dslPropertyAnnotation = fieldElement.getAnnotation(DSLProperty::class.java)
+        if (dslPropertyAnnotation != null) {
+            customBuildName = dslPropertyAnnotation.value
+        }
+
+        return FieldElementDefinition(
             fieldName = fieldElement.simpleName.toString(),
             element = if (isPrimitiveType) fieldElement else fieldClassElement!!,
             isPrimitiveType = isPrimitiveType,
             shouldClassBeGenerated = shouldClassBeGenerated,
+            customBuildName = customBuildName
         )
     }
 

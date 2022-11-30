@@ -15,15 +15,33 @@ class MethodSpecGenerator(private val codeBlockGenerator: CodeBlockGenerator) {
         return this.buildMethodWithoutOptions(attributeInfo)
     }
 
-    private fun buildConsumerType(clazz: Class<*>) =
-        ParameterizedTypeName.get(ClassName.get(Consumer::class.java), TypeName.get(clazz))
+    fun buildClassType(fullyQualifiedClassName: String): TypeName {
+        val lastDotIndex = fullyQualifiedClassName.lastIndexOf(".")
 
-    private fun buildConsumerArrayType(clazz: Class<*>) = ArrayTypeName.of(buildConsumerType(clazz))
+        if (lastDotIndex > -1) {
+            val packageName = fullyQualifiedClassName.substring(0, lastDotIndex)
+            val className = fullyQualifiedClassName
+                .substring(lastDotIndex + 1, fullyQualifiedClassName.length)
+
+            return ClassName.get(packageName, className)
+        }
+
+        return TypeVariableName.get(fullyQualifiedClassName)
+    }
+
+    private fun buildConsumerType(fullyQualifiedClassName: String): ParameterizedTypeName {
+        val className = this.buildClassType(fullyQualifiedClassName)
+        return ParameterizedTypeName.get(ClassName.get(Consumer::class.java), className)
+    }
+
+    private fun buildConsumerArrayType(fullyQualifiedClassName: String): ArrayTypeName {
+        return ArrayTypeName.of(this.buildConsumerType(fullyQualifiedClassName))
+    }
 
     private fun buildMethodWithoutOptions(attributeInfo: AttributeInfo): MethodSpec {
         return MethodSpec.methodBuilder(attributeInfo.buildMethodName)
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            .addParameter(attributeInfo.type, attributeInfo.name)
+            .addParameter(this.buildClassType(attributeInfo.type), attributeInfo.name)
             .addCode(this.codeBlockGenerator.buildCodeBlock(attributeInfo))
             .returns(this.buildConsumerType(attributeInfo.wrapperClass))
             .build()
@@ -43,8 +61,8 @@ class MethodSpecGenerator(private val codeBlockGenerator: CodeBlockGenerator) {
     fun buildRootMethod(classInfo: ClassInfo): MethodSpec {
         return MethodSpec.methodBuilder(classInfo.parameterName)
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            .returns(String.javaClass)
-            .addParameter(this.buildConsumerArrayType(String.javaClass), "options")
+            .returns(this.buildClassType(classInfo.fullQualifiedName))
+            .addParameter(this.buildConsumerArrayType(classInfo.fullQualifiedName), "options")
             .varargs(true)
             .addCode(this.codeBlockGenerator.buildCodeBlock(classInfo))
             .addAnnotation(SafeVarargs::class.java)

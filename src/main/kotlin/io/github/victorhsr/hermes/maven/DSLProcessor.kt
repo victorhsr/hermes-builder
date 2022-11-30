@@ -2,6 +2,7 @@ package io.github.victorhsr.hermes.maven
 
 import com.google.auto.service.AutoService
 import io.github.victorhsr.hermes.core.HermesRunnerFactory
+import io.github.victorhsr.hermes.core.element.ElementDefinitionsBuilder
 import io.github.victorhsr.hermes.maven.DSLProcessor.Companion.DSL_ROOT_QUALIFIED_NAME
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
@@ -9,32 +10,29 @@ import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
 import javax.tools.Diagnostic
 
-@SupportedAnnotationTypes(DSL_ROOT_QUALIFIED_NAME)
-@SupportedSourceVersion(SourceVersion.RELEASE_17)
 @AutoService(Processor::class)
+@SupportedSourceVersion(SourceVersion.RELEASE_17)
+@SupportedAnnotationTypes(DSL_ROOT_QUALIFIED_NAME)
 class DSLProcessor : AbstractProcessor() {
 
     companion object {
         const val DSL_ROOT_QUALIFIED_NAME = "io.github.victorhsr.hermes.core.annotations.DSLRoot"
     }
 
-    private val hermesRunner = HermesRunnerFactory.create()
-
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
 
+        val hermesRunner = HermesRunnerFactory.create()
+        val elementDefinitionsBuilder = ElementDefinitionsBuilder(this.processingEnv)
+
         val (annotatedClasses, annotatedOtherElements) = this.separateAnnotatedElements(roundEnv, annotations)
-        println("annotatedClasses = ${annotatedClasses}")
-        println("an = ${annotatedOtherElements}")
 
         if (annotatedOtherElements.isNotEmpty()) {
             this.logInvalidElements(annotatedOtherElements)
         }
 
-        val elementDefinitionsBuilder = ElementDefinitionsBuilder(this.processingEnv)
-        val resolveElementDefinitions = elementDefinitionsBuilder.resolveElementDefinitions(annotatedClasses)
-        println("resolveElementDefinitions = ${resolveElementDefinitions}")
+        val elementDefinitions = elementDefinitionsBuilder.resolveElementDefinitions(annotatedClasses)
+        hermesRunner.genDSL(elementDefinitions, this.processingEnv.getFiler())
 
-        //this.hermesRunner.genDSL(annotatedClasses, this.processingEnv)
         return false;
     }
 
