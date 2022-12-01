@@ -1,7 +1,7 @@
-package io.github.victorhsr.hermes.core
+package io.github.victorhsr.hermes.maven
 
-import io.github.victorhsr.hermes.core.element.ClassElementDefinition
-import io.github.victorhsr.hermes.core.element.FieldElementDefinition
+import io.github.victorhsr.hermes.core.AttributeInfo
+import io.github.victorhsr.hermes.core.ClassInfo
 import myCapitalize
 import java.util.*
 

@@ -22,16 +22,15 @@ data class AttributeInfo(
     val buildMethodName: String
 ) {
     val wrapperClassParamName = this.wrapperClass.substring(this.wrapperClass.lastIndexOf(".") + 1).myDecapitalize()
-    val wrapperClassSimpleName = this.wrapperClassParamName.myCapitalize()
     val className: String
 
     init {
         val lastDot = this.type.lastIndexOf(".")
 
-        if (lastDot > 1) {
-            className = this.type.substring(lastDot + 1)
+        this.className = if (lastDot > 1) {
+            this.type.substring(lastDot + 1)
         } else {
-            className = this.type
+            this.type
         }
     }
 }

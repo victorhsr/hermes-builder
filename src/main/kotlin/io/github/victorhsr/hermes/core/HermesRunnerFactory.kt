@@ -8,13 +8,11 @@ class HermesRunnerFactory {
 
     companion object {
         fun create(): HermesRunner {
-            val classInfoBuilder = ClassInfoBuilder()
-
             val codeBlockGenerator = CodeBlockGenerator()
             val methodSpecGenerator = MethodSpecGenerator(codeBlockGenerator)
             val dslGenerator = DSLGenerator(methodSpecGenerator)
 
-            return HermesRunner(classInfoBuilder, dslGenerator)
+            return HermesRunner(dslGenerator)
         }
     }
 

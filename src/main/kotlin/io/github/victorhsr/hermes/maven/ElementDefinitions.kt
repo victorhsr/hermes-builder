@@ -1,4 +1,4 @@
-package io.github.victorhsr.hermes.core.element
+package io.github.victorhsr.hermes.maven
 
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement

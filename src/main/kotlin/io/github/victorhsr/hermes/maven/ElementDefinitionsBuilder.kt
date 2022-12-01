@@ -1,4 +1,4 @@
-package io.github.victorhsr.hermes.core.element
+package io.github.victorhsr.hermes.maven
 
 import io.github.victorhsr.hermes.core.annotations.DSLIgnore
 import io.github.victorhsr.hermes.core.annotations.DSLProperty
@@ -88,16 +88,16 @@ class ElementDefinitionsBuilder(private val processingEnvironment: ProcessingEnv
 
     private fun resolveFields(clazz: TypeElement): List<Element> {
 
-        val getMethodsMap =
-            clazz.enclosedElements.filter { it.kind == ElementKind.METHOD }.filter { it.simpleName.startsWith("get") }
+        val setMethodsMap =
+            clazz.enclosedElements.filter { it.kind == ElementKind.METHOD }.filter { it.simpleName.startsWith("set") }
                 .groupBy { it.simpleName.toString() }
 
         return clazz.enclosedElements.filter { it.kind.isField }
-            .filter { getMethodsMap.containsKey(this.buildGetMethodName(it.simpleName.toString())) }.toList()
+            .filter { setMethodsMap.containsKey(this.buildSetMethodName(it.simpleName.toString())) }.toList()
     }
 
-    private fun buildGetMethodName(name: String): String {
-        return "get${name.replaceFirstChar { it.titlecase(Locale.getDefault()) }}"
+    private fun buildSetMethodName(name: String): String {
+        return "set${name.replaceFirstChar { it.titlecase(Locale.getDefault()) }}"
     }
 
 }

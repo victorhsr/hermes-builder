@@ -2,7 +2,6 @@ package io.github.victorhsr.hermes.maven
 
 import com.google.auto.service.AutoService
 import io.github.victorhsr.hermes.core.HermesRunnerFactory
-import io.github.victorhsr.hermes.core.element.ElementDefinitionsBuilder
 import io.github.victorhsr.hermes.maven.DSLProcessor.Companion.DSL_ROOT_QUALIFIED_NAME
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
@@ -23,6 +22,7 @@ class DSLProcessor : AbstractProcessor() {
 
         val hermesRunner = HermesRunnerFactory.create()
         val elementDefinitionsBuilder = ElementDefinitionsBuilder(this.processingEnv)
+        val classInfoBuilder = ClassInfoBuilder()
 
         val (annotatedClasses, annotatedOtherElements) = this.separateAnnotatedElements(roundEnv, annotations)
 
@@ -31,7 +31,8 @@ class DSLProcessor : AbstractProcessor() {
         }
 
         val elementDefinitions = elementDefinitionsBuilder.resolveElementDefinitions(annotatedClasses)
-        hermesRunner.genDSL(elementDefinitions, this.processingEnv.getFiler())
+        val classInfoList = classInfoBuilder.processRootClasses(elementDefinitions)
+        hermesRunner.genDSL(classInfoList, this.processingEnv.getFiler())
 
         return false;
     }
