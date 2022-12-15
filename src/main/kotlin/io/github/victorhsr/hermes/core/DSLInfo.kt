@@ -1,6 +1,5 @@
 package io.github.victorhsr.hermes.core
 
-import myCapitalize
 import myDecapitalize
 
 data class ClassInfo(

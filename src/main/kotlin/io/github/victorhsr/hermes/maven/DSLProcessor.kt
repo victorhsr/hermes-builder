@@ -31,7 +31,7 @@ class DSLProcessor : AbstractProcessor() {
         }
 
         val elementDefinitions = elementDefinitionsBuilder.resolveElementDefinitions(annotatedClasses)
-        val classInfoList = classInfoBuilder.processRootClasses(elementDefinitions)
+        val classInfoList = classInfoBuilder.build(elementDefinitions)
         hermesRunner.genDSL(classInfoList, this.processingEnv.getFiler())
 
         return false;

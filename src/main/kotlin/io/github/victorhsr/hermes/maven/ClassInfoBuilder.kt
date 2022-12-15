@@ -7,8 +7,8 @@ import java.util.*
 
 class ClassInfoBuilder {
 
-    fun processRootClasses(rootClasses: List<ClassElementDefinition>): List<ClassInfo> {
-        return rootClasses.map(this::buildClassInfo)
+    fun build(classElementDefinitions: List<ClassElementDefinition>): List<ClassInfo> {
+        return classElementDefinitions.map(this::buildClassInfo)
     }
 
     private fun buildClassInfo(classDefinition: ClassElementDefinition): ClassInfo {
