@@ -7,6 +7,7 @@ import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.DeclaredType
 import javax.lang.model.util.ElementFilter
 
 class ElementDefinitionsBuilder(private val processingEnvironment: ProcessingEnvironment) {
@@ -39,61 +40,69 @@ class ElementDefinitionsBuilder(private val processingEnvironment: ProcessingEnv
 
         classElementDefinition.accessibleFields.forEach {
             if (it.shouldClassBeGenerated) {
-                this.buildClassElementDefinitions(it.element as TypeElement, false)
+                try {
+                    this.buildClassElementDefinitions(it.declaredType!!.asElement() as TypeElement, false)
+                }catch (ex: Exception){
+                    println("hello")
+                }
             }
         }
     }
 
     private fun resolveAccessibleFields(clazz: TypeElement): List<FieldElementDefinition> {
-        return this.resolveFields(clazz).filter { it.getAnnotation(DSLIgnore::class.java) == null }
+        return this.resolveFields(clazz)
+            .filter { it.getAnnotation(DSLIgnore::class.java) == null }
             .map { this.buildFieldElementDefinitions(it) }
     }
 
     private fun buildFieldElementDefinitions(fieldElement: Element): FieldElementDefinition {
         val isPrimitiveType = fieldElement.asType().kind.isPrimitive
-        val fieldClassElement =
+        val declaredType =
             if (!isPrimitiveType) {
-                this.processingEnvironment.elementUtils.getTypeElement(fieldElement.asType().toString())
+                fieldElement.asType() as DeclaredType
             } else null
 
         val shouldClassBeGenerated = !isPrimitiveType
-                && this.hasDefaultConstructor(fieldClassElement!!)
-                && !this.isNativeClass(fieldClassElement!!)
-
-        var customBuildName: String? = null
+                && this.hasDefaultConstructor(declaredType!!)
+                && !this.isNativeClass(declaredType)
 
         val dslPropertyAnnotation = fieldElement.getAnnotation(DSLProperty::class.java)
-        if (dslPropertyAnnotation != null) {
-            customBuildName = dslPropertyAnnotation.value
-        }
+        val customBuildName = dslPropertyAnnotation?.value
 
         return FieldElementDefinition(
             fieldName = fieldElement.simpleName.toString(),
-            element = if (isPrimitiveType) fieldElement else fieldClassElement!!,
+            declaredType = declaredType,
+            primitiveElement = fieldElement,
             isPrimitiveType = isPrimitiveType,
             shouldClassBeGenerated = shouldClassBeGenerated,
             customBuildName = customBuildName
         )
     }
 
-    private fun isNativeClass(element: TypeElement): Boolean {
-        val qualifiedName = element.qualifiedName
+    private fun isNativeClass(declaredType: DeclaredType): Boolean {
+        val typeElement = declaredType.asElement() as TypeElement
+        val qualifiedName = typeElement.qualifiedName
 
-        return (qualifiedName.startsWith("java.") || qualifiedName.startsWith("sun."))
+        return qualifiedName.startsWith("java.")
+                || qualifiedName.startsWith("sun.")
     }
 
-    private fun hasDefaultConstructor(element: TypeElement): Boolean {
+    private fun hasDefaultConstructor(declaredType: DeclaredType): Boolean {
+        val element = declaredType.asElement()
         return ElementFilter.constructorsIn(element.enclosedElements).any { it.parameters.isEmpty() }
     }
 
     private fun resolveFields(clazz: TypeElement): List<Element> {
 
-        val setMethodsMap =
-            clazz.enclosedElements.filter { it.kind == ElementKind.METHOD }.filter { it.simpleName.startsWith("set") }
-                .groupBy { it.simpleName.toString() }
+        val setMethodsMap = clazz.enclosedElements
+            .filter { it.kind == ElementKind.METHOD }
+            .filter { it.simpleName.startsWith("set") }
+            .groupBy { it.simpleName.toString() }
 
-        return clazz.enclosedElements.filter { it.kind.isField }
-            .filter { setMethodsMap.containsKey(this.buildSetMethodName(it.simpleName.toString())) }.toList()
+        return clazz.enclosedElements
+            .filter { it.kind.isField }
+            .filter { setMethodsMap.containsKey(this.buildSetMethodName(it.simpleName.toString())) }
+            .toList()
     }
 
     private fun buildSetMethodName(name: String): String {

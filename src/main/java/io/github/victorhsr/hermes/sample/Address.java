@@ -1,5 +1,8 @@
 package io.github.victorhsr.hermes.sample;
 
+import io.github.victorhsr.hermes.core.annotations.DSLRoot;
+
+@DSLRoot
 public class Address {
 
     private String street;

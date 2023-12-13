@@ -4,6 +4,7 @@ import io.github.victorhsr.hermes.core.AttributeInfo
 import io.github.victorhsr.hermes.core.ClassInfo
 import myCapitalize
 import java.util.*
+import javax.lang.model.element.Element
 
 class ClassInfoBuilder {
 
@@ -28,11 +29,17 @@ class ClassInfoBuilder {
         fieldDefinition: FieldElementDefinition
     ): AttributeInfo {
 
+        val type = if (fieldDefinition.isPrimitiveType) {
+            fieldDefinition.primitiveElement?.asType().toString()
+        } else {
+            fieldDefinition.declaredType.toString()
+        }
+
         return AttributeInfo(
             name = fieldDefinition.fieldName,
             buildMethodName = fieldDefinition.customBuildName ?: fieldDefinition.fieldName,
             setterMethodName = "set${fieldDefinition.fieldName.myCapitalize()}",
-            type = fieldDefinition.element.asType().toString(),
+            type = type,
             wrapperClass = parentClassElementDefinition.element.qualifiedName.toString(),
             hasOptions = fieldDefinition.shouldClassBeGenerated,
         )
