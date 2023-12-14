@@ -20,33 +20,42 @@ class ElementDefinitionsBuilder(private val processingEnvironment: ProcessingEnv
     }
 
     private fun processAnnotatedClass(typeElement: TypeElement) {
-        this.buildClassElementDefinitions(typeElement, true)
+        this.buildClassElementDefinitions(typeElement)
     }
 
-    private fun buildClassElementDefinitions(typeElement: TypeElement, isAnnotatedClass: Boolean) {
+    private fun buildClassElementDefinitions(typeElement: TypeElement) {
         val fullQualifiedClassName = typeElement.asType().toString()
-
-        if (this.classMap.containsKey(fullQualifiedClassName)) {
-            return
-        }
-
-        val classElementDefinition = ClassElementDefinition(
-            element = typeElement,
-            wasAnnotated = isAnnotatedClass,
-            accessibleFields = this.resolveAccessibleFields(typeElement)
-        )
-
+        val classElementDefinition = buildClassElementDefinition(typeElement, true);
         this.classMap[fullQualifiedClassName] = classElementDefinition
 
         classElementDefinition.accessibleFields.forEach {
             if (it.shouldClassBeGenerated) {
                 try {
-                    this.buildClassElementDefinitions(it.declaredType!!.asElement() as TypeElement, false)
-                }catch (ex: Exception){
+                    this.buildClassElementDefinitionsForNestedFields(it.declaredType!!.asElement() as TypeElement, false)
+                } catch (ex: Exception) {
                     println("hello")
                 }
             }
         }
+    }
+
+    private fun buildClassElementDefinitionsForNestedFields(typeElement: TypeElement, isAnnotatedClass: Boolean) {
+        val fullQualifiedClassName = typeElement.asType().toString()
+
+        if (!isAnnotatedClass && this.classMap.containsKey(fullQualifiedClassName)) {
+            return
+        }
+
+        val classElementDefinition = buildClassElementDefinition(typeElement, isAnnotatedClass);
+        this.classMap[fullQualifiedClassName] = classElementDefinition
+    }
+
+    private fun buildClassElementDefinition(typeElement: TypeElement, isAnnotatedClass: Boolean): ClassElementDefinition {
+        return ClassElementDefinition(
+            element = typeElement,
+            wasAnnotated = isAnnotatedClass,
+            accessibleFields = this.resolveAccessibleFields(typeElement)
+        )
     }
 
     private fun resolveAccessibleFields(clazz: TypeElement): List<FieldElementDefinition> {

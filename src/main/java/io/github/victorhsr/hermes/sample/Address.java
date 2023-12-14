@@ -6,7 +6,7 @@ import io.github.victorhsr.hermes.core.annotations.DSLRoot;
 public class Address {
 
     private String street;
-    private int houseNumber;
+    private Integer houseNumber;
 
     public String getStreet() {
         return street;
@@ -16,11 +16,11 @@ public class Address {
         this.street = street;
     }
 
-    public int getHouseNumber() {
+    public Integer getHouseNumber() {
         return houseNumber;
     }
 
-    public void setHouseNumber(int houseNumber) {
+    public void setHouseNumber(Integer houseNumber) {
         this.houseNumber = houseNumber;
     }
 
@@ -28,7 +28,7 @@ public class Address {
     public String toString() {
         return "Address{" +
                 "street='" + street + '\'' +
-                ", number=" + houseNumber +
+                ", houseNumber=" + houseNumber +
                 '}';
     }
 }
