@@ -5,7 +5,7 @@ import java.util.function.Consumer
 
 
 fun buildClassType(fullQualifiedClassName: String): TypeName {
-    if(fullQualifiedClassName.contains(">")){
+    if (fullQualifiedClassName.contains(">")) {
         return buildClassTypeForGenerics(fullQualifiedClassName);
     }
 
@@ -23,22 +23,59 @@ fun buildClassType(fullQualifiedClassName: String): TypeName {
 }
 
 fun buildClassTypeForGenerics(typeAsString: String): TypeName {
-    val startIndex: Int = typeAsString.indexOf("<")
-    val endIndex: Int = typeAsString.lastIndexOf(">")
+    val startIndex = typeAsString.indexOf("<")
+    val endIndex = typeAsString.lastIndexOf(">")
 
+    if (startIndex == -1 || endIndex == -1) {
+        try {
+            // If no '<' or '>' found, it means it's a non-generic type
+            return ClassName.bestGuess(typeAsString)
+        } catch (ex: Exception) {
+            throw ex
+        }
+    }
 
-    // Extract class name and generic type argument
-    val className: String = typeAsString.substring(0, startIndex)
-    val genericType: String = typeAsString.substring(startIndex + 1, endIndex)
+    // Extract class name and generic type arguments
+    val className = typeAsString.substring(0, startIndex)
+    val genericTypesString = typeAsString.substring(startIndex + 1, endIndex)
 
+    // Split generic types by comma
+    val genericTypes: List<String> = splitGenericTypes(genericTypesString)
 
-    // Create TypeName for the generic type argument using ClassName.bestGuess
-    val typeNameArg: TypeName = ClassName.bestGuess(genericType)
-
+    // Create TypeName instances for generic type arguments
+    val typeNames: MutableList<TypeName> = ArrayList()
+    for (genericType in genericTypes) {
+        val typeNameArg = buildClassTypeForGenerics(genericType)
+        typeNames.add(typeNameArg)
+    }
 
     // Create TypeName for the parameterized type
-    val typeName: TypeName = ParameterizedTypeName.get(ClassName.bestGuess(className), typeNameArg)
-    return typeName
+    val classNameObj = ClassName.bestGuess(className)
+    val typeNameArgs = typeNames.toTypedArray<TypeName>()
+    return ParameterizedTypeName.get(classNameObj, *typeNameArgs)
+}
+
+private fun splitGenericTypes(genericTypesString: String): List<String> {
+    val genericTypes: MutableList<String> = ArrayList()
+    var level = 0
+    var start = 0
+
+    for (i in 0 until genericTypesString.length) {
+        val c = genericTypesString[i]
+        if (c == '<') {
+            level++
+        } else if (c == '>') {
+            level--
+        } else if (c == ',' && level == 0) {
+            genericTypes.add(genericTypesString.substring(start, i))
+            start = i + 1
+        }
+    }
+
+    // Add the last type argument
+    genericTypes.add(genericTypesString.substring(start))
+
+    return genericTypes
 }
 
 fun buildConsumerType(fullQualifiedClassName: String): ParameterizedTypeName {
@@ -51,23 +88,8 @@ fun buildConsumerArrayType(fullQualifiedClassName: String): ArrayTypeName {
 }
 
 fun main() {
-    val typeAsString = "java.util.List<java.lang.String>"
-
-    val startIndex: Int = typeAsString.indexOf("<")
-    val endIndex: Int = typeAsString.lastIndexOf(">")
-
-
-    // Extract class name and generic type argument
-    val className: String = typeAsString.substring(0, startIndex)
-    val genericType: String = typeAsString.substring(startIndex + 1, endIndex)
-
-
-    // Create TypeName for the generic type argument using ClassName.bestGuess
-    val typeNameArg: TypeName = ClassName.bestGuess(genericType)
-
-
-    // Create TypeName for the parameterized type
-    val typeName: TypeName = ParameterizedTypeName.get(ClassName.bestGuess(className), typeNameArg)
+    val typeAsString = "java.util.Map<java.lang.String,java.util.List<java.util.List<java.util.List<java.lang.String>>>>"
+    val typeName: TypeName = buildClassTypeForGenerics(typeAsString)
 
     System.out.println(typeName);
 }

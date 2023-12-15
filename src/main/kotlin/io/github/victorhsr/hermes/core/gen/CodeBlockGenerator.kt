@@ -43,7 +43,7 @@ class CodeBlockGenerator {
 
         return CodeBlock
             .builder()
-            .addStatement("final ${attributeInfo.className} ${attributeInfo.name} = new ${attributeInfo.className}()")
+            .addStatement("final ${attributeInfo.type} ${attributeInfo.name} = new ${attributeInfo.type}()")
             .addStatement("\$T.of(options).forEach(option -> option.accept(${attributeInfo.name}))", Stream::class.java)
             .addStatement("return (${wrapperClassParamName}) -> $wrapperClassParamName.${attributeInfo.setterMethodName}(${attributeInfo.name})")
             .build()

@@ -1,5 +1,7 @@
 package io.github.victorhsr.hermes.sample;
 
+import java.util.Map;
+
 import static io.github.victorhsr.hermes.sample.AddressDSL.*;
 import static io.github.victorhsr.hermes.sample.PersonDSL.*;
 
@@ -8,7 +10,7 @@ public class Loader {
     public static void main(String[] args) {
         Person person = buildPerson();
         System.out.println("person = " + person);
-
+        Map<Object, Object> objectObjectMap = Map.of();
         Person personDSL = buildPersonDSL();
         System.out.println("personDSL = " + personDSL);
     }
