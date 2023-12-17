@@ -12,11 +12,13 @@ import javax.lang.model.util.ElementFilter
 
 class ElementDefinitionsBuilder(private val processingEnvironment: ProcessingEnvironment) {
 
-    private val classMap = mutableMapOf<String, ClassElementDefinition>()
+    private val classElementDefinitionMap = mutableMapOf<String, ClassElementDefinition>()
+    private val annotatedClassesMap = mutableListOf<String>();
 
     fun resolveElementDefinitions(annotatedClasses: List<TypeElement>): List<ClassElementDefinition> {
+        annotatedClasses.forEach{annotatedClassesMap.add(it.asType().toString())}
         annotatedClasses.forEach(this::processAnnotatedClass)
-        return this.classMap.values.toList()
+        return this.classElementDefinitionMap.values.toList()
     }
 
     private fun processAnnotatedClass(typeElement: TypeElement) {
@@ -26,7 +28,7 @@ class ElementDefinitionsBuilder(private val processingEnvironment: ProcessingEnv
     private fun buildClassElementDefinitions(typeElement: TypeElement) {
         val fullQualifiedClassName = typeElement.asType().toString()
         val classElementDefinition = buildClassElementDefinition(typeElement, true);
-        this.classMap[fullQualifiedClassName] = classElementDefinition
+        this.classElementDefinitionMap[fullQualifiedClassName] = classElementDefinition
 
         classElementDefinition.accessibleFields.forEach {
             if (it.shouldClassBeGenerated) {
@@ -42,12 +44,12 @@ class ElementDefinitionsBuilder(private val processingEnvironment: ProcessingEnv
     private fun buildClassElementDefinitionsForNestedFields(typeElement: TypeElement, isAnnotatedClass: Boolean) {
         val fullQualifiedClassName = typeElement.asType().toString()
 
-        if (!isAnnotatedClass && this.classMap.containsKey(fullQualifiedClassName)) {
+        if (!isAnnotatedClass && this.classElementDefinitionMap.containsKey(fullQualifiedClassName)) {
             return
         }
 
         val classElementDefinition = buildClassElementDefinition(typeElement, isAnnotatedClass);
-        this.classMap[fullQualifiedClassName] = classElementDefinition
+        this.classElementDefinitionMap[fullQualifiedClassName] = classElementDefinition
     }
 
     private fun buildClassElementDefinition(typeElement: TypeElement, isAnnotatedClass: Boolean): ClassElementDefinition {
@@ -71,19 +73,17 @@ class ElementDefinitionsBuilder(private val processingEnvironment: ProcessingEnv
                 fieldElement.asType() as DeclaredType
             } else null
 
-        val shouldClassBeGenerated = !isPrimitiveType
-                && this.hasDefaultConstructor(declaredType!!)
-                && !this.isNativeClass(declaredType)
-
         val dslPropertyAnnotation = fieldElement.getAnnotation(DSLProperty::class.java)
         val customBuildName = dslPropertyAnnotation?.value
+
+        val fullQualifiedName = fieldElement.asType().toString()
 
         return FieldElementDefinition(
             fieldName = fieldElement.simpleName.toString(),
             declaredType = declaredType,
             primitiveElement = fieldElement,
             isPrimitiveType = isPrimitiveType,
-            shouldClassBeGenerated = shouldClassBeGenerated,
+            shouldClassBeGenerated = annotatedClassesMap.contains(fullQualifiedName),
             customBuildName = customBuildName
         )
     }
