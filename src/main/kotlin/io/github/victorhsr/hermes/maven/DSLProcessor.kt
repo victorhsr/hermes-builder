@@ -3,6 +3,7 @@ package io.github.victorhsr.hermes.maven
 import com.google.auto.service.AutoService
 import io.github.victorhsr.hermes.core.HermesRunnerFactory
 import io.github.victorhsr.hermes.maven.DSLProcessor.Companion.DSL_ROOT_QUALIFIED_NAME
+import io.github.victorhsr.hermes.maven.element.builder.ElementDefinitionsBuilder
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.ElementKind
@@ -21,7 +22,7 @@ class DSLProcessor : AbstractProcessor() {
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
 
         val hermesRunner = HermesRunnerFactory.create()
-        val elementDefinitionsBuilder = ElementDefinitionsBuilder(this.processingEnv)
+        val elementDefinitionsBuilder = ElementDefinitionsBuilder()
         val classInfoBuilder = ClassInfoBuilder()
 
         val (annotatedClasses, annotatedOtherElements) = this.separateAnnotatedElements(roundEnv, annotations)

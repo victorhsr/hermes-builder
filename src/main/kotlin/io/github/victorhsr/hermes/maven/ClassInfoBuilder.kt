@@ -3,6 +3,8 @@ package io.github.victorhsr.hermes.maven
 import io.github.victorhsr.hermes.core.AttributeInfo
 import io.github.victorhsr.hermes.core.ClassInfo
 import io.github.victorhsr.hermes.core.ext.myCapitalize
+import io.github.victorhsr.hermes.maven.element.ClassElementDefinition
+import io.github.victorhsr.hermes.maven.element.FieldElementDefinition
 import java.util.*
 
 class ClassInfoBuilder {
