@@ -2,9 +2,8 @@ package io.github.victorhsr.hermes.maven
 
 import io.github.victorhsr.hermes.core.AttributeInfo
 import io.github.victorhsr.hermes.core.ClassInfo
-import myCapitalize
+import io.github.victorhsr.hermes.core.ext.myCapitalize
 import java.util.*
-import javax.lang.model.element.Element
 
 class ClassInfoBuilder {
 

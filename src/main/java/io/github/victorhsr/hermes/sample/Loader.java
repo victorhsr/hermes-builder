@@ -1,8 +1,10 @@
 package io.github.victorhsr.hermes.sample;
 
+import java.util.HashMap;
 import java.util.Map;
 
-import static io.github.victorhsr.hermes.sample.AddressDSL.*;
+import static io.github.victorhsr.hermes.sample.AddressDSL.houseNumber;
+import static io.github.victorhsr.hermes.sample.AddressDSL.street;
 import static io.github.victorhsr.hermes.sample.PersonDSL.*;
 
 public class Loader {
@@ -10,7 +12,7 @@ public class Loader {
     public static void main(String[] args) {
         Person person = buildPerson();
         System.out.println("person = " + person);
-        Map<Object, Object> objectObjectMap = Map.of();
+        Map<Object, Object> objectObjectMap = new HashMap<>();
         Person personDSL = buildPersonDSL();
         System.out.println("personDSL = " + personDSL);
     }

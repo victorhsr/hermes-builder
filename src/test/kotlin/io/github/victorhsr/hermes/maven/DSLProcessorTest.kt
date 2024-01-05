@@ -3,6 +3,7 @@ package io.github.victorhsr.hermes.maven
 import io.github.victorhsr.hermes.core.HermesRunner
 import io.github.victorhsr.hermes.core.HermesRunnerFactory
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.MockedConstruction

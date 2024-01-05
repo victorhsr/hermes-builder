@@ -1,6 +1,7 @@
 package io.github.victorhsr.hermes.core
 
-import myDecapitalize
+import io.github.victorhsr.hermes.core.ext.uncapitalize
+
 
 data class ClassInfo(
     val fullQualifiedName: String,
@@ -20,5 +21,5 @@ data class AttributeInfo(
     val hasOptions: Boolean,
     val buildMethodName: String
 ) {
-    val wrapperClassParamName = this.wrapperClass.substring(this.wrapperClass.lastIndexOf(".") + 1).myDecapitalize()
+    val wrapperClassParamName = this.wrapperClass.substring(this.wrapperClass.lastIndexOf(".") + 1).uncapitalize()
 }
