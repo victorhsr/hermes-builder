@@ -1,67 +1,76 @@
 package io.github.victorhsr.hermes.maven.element.builder
 
+import io.github.victorhsr.hermes.core.annotations.DSLIgnore
+import io.mockk.every
+import io.mockk.mockk
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
-import org.mockito.Mockito.*
-import org.mockito.junit.jupiter.MockitoExtension
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
-import kotlin.test.assertEquals
 
-@ExtendWith(MockitoExtension::class)
 class FieldFinderTest {
 
     companion object {
-        private const val SET_METHOD_PREFIX = "set"
+        private const val SET_NAME_METHOD_NAME = "setName"
+        private const val SET_AGE_METHOD_NAME = "setAge"
+        private const val DO_SOMETHING_METHOD_NAME = "doSomething"
+        private const val NAME_FIELD_NAME = "name"
+        private const val AGE_FIELD_NAME = "age"
+        private const val ADDRESS_FIELD_NAME = "address"
     }
 
-    @Mock
-    private lateinit var clazz: TypeElement
-
     @Test
-    fun `should filter elements that are fields and have 'set' methods`() {
+    fun `should filter elements that are fields and have 'set' methods and ignore the ones annoted with DSLIgnore`() {
         // given
-        val expectedResult = mock(List::class.java)
+        val clazz: TypeElement = mockk<TypeElement>()
 
-        val methods: List<Element> = listOf(
-            mockElement(ElementKind.METHOD, "setName"),
-            mockElement(ElementKind.METHOD, "doSomething"),
-            mockElement(ElementKind.METHOD, "setAge")
-        )
+        val nameSetMethod = mockElement(ElementKind.METHOD, SET_NAME_METHOD_NAME)
+        val ageSetMethod = mockElement(ElementKind.METHOD, SET_AGE_METHOD_NAME)
+        val doSomethingMethod = mockElement(ElementKind.METHOD, DO_SOMETHING_METHOD_NAME)
+        val nameField = mockElement(ElementKind.FIELD, NAME_FIELD_NAME)
+        val ageField = mockElement(ElementKind.FIELD, AGE_FIELD_NAME, true)
+        val addressField = mockElement(ElementKind.FIELD, ADDRESS_FIELD_NAME)
 
-        val fields: List<Element> = listOf(
-            mockElement(ElementKind.FIELD, "name"),
-            mockElement(ElementKind.FIELD, "age")
-        )
+        val enclosedElements = listOf(nameField, nameSetMethod, ageField, ageSetMethod, doSomethingMethod, addressField)
+        val expectedResult = listOf(nameField)
 
-        val enclosedElements = methods + fields
-        `when`(clazz.enclosedElements).thenReturn(enclosedElements)
+        every { clazz.enclosedElements } returns enclosedElements
 
         // when
         val actual: List<Element> = FieldFinder.getFieldsFromClazz(clazz)
 
         // then
-        assertEquals(actual, expectedResult)
+        assertThat(actual).hasSameElementsAs(expectedResult)
     }
 
-    private fun mockElement(elementKind: ElementKind, simpleNameString: String): Element {
-        val simpleName: Name = mockName(simpleNameString)
-        val element: Element = mock(Element::class.java)
-        `when`(element.kind).thenReturn(elementKind)
-        `when`(element.simpleName).thenReturn(simpleName)
+    private fun mockElement(elementKind: ElementKind, name: String, shouldBeIgnored: Boolean = false): Element {
+        val element: Element = mockk<Element>()
+
+        every { element.kind } returns elementKind
+        every { element.simpleName } returns TestName(name)
+        every { element.getAnnotation(any<Class<Annotation>>()) } returns if (shouldBeIgnored) mockk<DSLIgnore>() else null
 
         return element
     }
 
-    private fun mockName(nameContent: String): Name {
-        val name = mock(Name::class.java)
-        `when`(name.startsWith(SET_METHOD_PREFIX)).thenReturn(true)
-        `when`(name.toString()).thenReturn(nameContent)
+}
 
-        return name
-    }
+class TestName(private val nameValue: String) : Name {
 
+    override val length: Int
+        get() = nameValue.length
+
+    override fun contentEquals(cs: CharSequence) = nameValue == cs.toString()
+
+    override fun get(index: Int) = nameValue[index]
+
+    override fun subSequence(start: Int, end: Int) = nameValue.subSequence(start, end)
+
+    override fun hashCode() = nameValue.hashCode()
+
+    override fun equals(obj: Any?) = nameValue == obj.toString()
+
+    override fun toString() = nameValue
 }

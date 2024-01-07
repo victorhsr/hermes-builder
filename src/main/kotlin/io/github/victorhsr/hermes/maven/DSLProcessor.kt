@@ -11,7 +11,7 @@ import javax.lang.model.element.TypeElement
 import javax.tools.Diagnostic
 
 @AutoService(Processor::class)
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
+@SupportedSourceVersion(SourceVersion.RELEASE_11)
 @SupportedAnnotationTypes(DSL_ROOT_QUALIFIED_NAME)
 class DSLProcessor : AbstractProcessor() {
 
