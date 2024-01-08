@@ -17,7 +17,7 @@ class ElementDefinitionsBuilder {
 
     private fun buildClassElementDefinitions(typeElement: TypeElement) {
         val fullQualifiedClassName = typeElement.asType().toString()
-        val classElementDefinition = buildClassElementDefinition(typeElement, true);
+        val classElementDefinition = ClassElementDefinition(typeElement, buildAccessibleFields(typeElement), true)
         this.classElementDefinitionMap[fullQualifiedClassName] = classElementDefinition
 
         classElementDefinition.accessibleFields.forEach {
@@ -34,19 +34,8 @@ class ElementDefinitionsBuilder {
             return
         }
 
-        val classElementDefinition = buildClassElementDefinition(typeElement, false);
+        val classElementDefinition = ClassElementDefinition(typeElement, buildAccessibleFields(typeElement), false)
         this.classElementDefinitionMap[fullQualifiedClassName] = classElementDefinition
-    }
-
-    private fun buildClassElementDefinition(
-        typeElement: TypeElement,
-        isAnnotatedClass: Boolean
-    ): ClassElementDefinition {
-        return ClassElementDefinition(
-            element = typeElement,
-            wasAnnotated = isAnnotatedClass,
-            accessibleFields = this.buildAccessibleFields(typeElement)
-        )
     }
 
     private fun buildAccessibleFields(clazz: TypeElement): List<FieldElementDefinition> {
