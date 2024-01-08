@@ -1,11 +1,8 @@
 package io.github.victorhsr.hermes.maven.element.builder
 
-import io.github.victorhsr.hermes.core.annotations.DSLProperty
 import io.github.victorhsr.hermes.maven.element.ClassElementDefinition
 import io.github.victorhsr.hermes.maven.element.FieldElementDefinition
-import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
-import javax.lang.model.type.DeclaredType
 
 class ElementDefinitionsBuilder {
 
@@ -14,12 +11,8 @@ class ElementDefinitionsBuilder {
 
     fun resolveElementDefinitions(annotatedClasses: List<TypeElement>): List<ClassElementDefinition> {
         annotatedClasses.forEach { annotatedClassesMap.add(it.asType().toString()) }
-        annotatedClasses.forEach(this::processAnnotatedClass)
+        annotatedClasses.forEach(this::buildClassElementDefinitions)
         return this.classElementDefinitionMap.values.toList()
-    }
-
-    private fun processAnnotatedClass(typeElement: TypeElement) {
-        this.buildClassElementDefinitions(typeElement)
     }
 
     private fun buildClassElementDefinitions(typeElement: TypeElement) {
@@ -29,26 +22,26 @@ class ElementDefinitionsBuilder {
 
         classElementDefinition.accessibleFields.forEach {
             if (it.shouldClassBeGenerated) {
-                this.buildClassElementDefinitionsForNestedFields(
-                    it.declaredType!!.asElement() as TypeElement,
-                    false
-                )
+                this.buildClassElementDefinitionsForNestedFields(it.declaredType!!.asElement() as TypeElement)
             }
         }
     }
 
-    private fun buildClassElementDefinitionsForNestedFields(typeElement: TypeElement, isAnnotatedClass: Boolean) {
+    private fun buildClassElementDefinitionsForNestedFields(typeElement: TypeElement) {
         val fullQualifiedClassName = typeElement.asType().toString()
 
-        if (!isAnnotatedClass && this.classElementDefinitionMap.containsKey(fullQualifiedClassName)) {
+        if (this.classElementDefinitionMap.containsKey(fullQualifiedClassName)) {
             return
         }
 
-        val classElementDefinition = buildClassElementDefinition(typeElement, isAnnotatedClass);
+        val classElementDefinition = buildClassElementDefinition(typeElement, false);
         this.classElementDefinitionMap[fullQualifiedClassName] = classElementDefinition
     }
 
-    private fun buildClassElementDefinition(typeElement: TypeElement, isAnnotatedClass: Boolean): ClassElementDefinition {
+    private fun buildClassElementDefinition(
+        typeElement: TypeElement,
+        isAnnotatedClass: Boolean
+    ): ClassElementDefinition {
         return ClassElementDefinition(
             element = typeElement,
             wasAnnotated = isAnnotatedClass,
@@ -57,30 +50,8 @@ class ElementDefinitionsBuilder {
     }
 
     private fun buildAccessibleFields(clazz: TypeElement): List<FieldElementDefinition> {
-        return FieldFinder.getFieldsFromClazz(clazz)
-            .map { this.buildFieldElementDefinitions(it) }
+        return FieldFinder
+            .getFieldsFromClazz(clazz)
+            .map { FieldElementDefinition(it, annotatedClassesMap.contains(it.asType().toString())) }
     }
-
-    private fun buildFieldElementDefinitions(fieldElement: Element): FieldElementDefinition {
-        val isPrimitiveType = fieldElement.asType().kind.isPrimitive
-        val declaredType =
-            if (!isPrimitiveType) {
-                fieldElement.asType() as DeclaredType
-            } else null
-
-        val dslPropertyAnnotation = fieldElement.getAnnotation(DSLProperty::class.java)
-        val customBuildName = dslPropertyAnnotation?.value
-
-        val fullQualifiedName = fieldElement.asType().toString()
-
-        return FieldElementDefinition(
-            fieldName = fieldElement.simpleName.toString(),
-            declaredType = declaredType,
-            primitiveElement = fieldElement,
-            isPrimitiveType = isPrimitiveType,
-            shouldClassBeGenerated = annotatedClassesMap.contains(fullQualifiedName),
-            customBuildName = customBuildName
-        )
-    }
-
 }

@@ -1,13 +1,13 @@
 package io.github.victorhsr.hermes.maven.element.builder
 
 import io.github.victorhsr.hermes.core.annotations.DSLIgnore
+import io.github.victorhsr.hermes.maven.util.TestName
 import io.mockk.every
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
-import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
 
 class FieldFinderTest {
@@ -50,27 +50,9 @@ class FieldFinderTest {
 
         every { element.kind } returns elementKind
         every { element.simpleName } returns TestName(name)
-        every { element.getAnnotation(any<Class<Annotation>>()) } returns if (shouldBeIgnored) mockk<DSLIgnore>() else null
+        every { element.getAnnotation(any<Class<DSLIgnore>>()) } returns if (shouldBeIgnored) mockk<DSLIgnore>() else null
 
         return element
     }
 
-}
-
-class TestName(private val nameValue: String) : Name {
-
-    override val length: Int
-        get() = nameValue.length
-
-    override fun contentEquals(cs: CharSequence) = nameValue == cs.toString()
-
-    override fun get(index: Int) = nameValue[index]
-
-    override fun subSequence(start: Int, end: Int) = nameValue.subSequence(start, end)
-
-    override fun hashCode() = nameValue.hashCode()
-
-    override fun equals(obj: Any?) = nameValue == obj.toString()
-
-    override fun toString() = nameValue
 }
