@@ -11,31 +11,15 @@ class ElementDefinitionsBuilder {
 
     fun resolveElementDefinitions(annotatedClasses: List<TypeElement>): List<ClassElementDefinition> {
         annotatedClasses.forEach { annotatedClassesMap.add(it.asType().toString()) }
-        annotatedClasses.forEach(this::buildClassElementDefinitions)
-        return this.classElementDefinitionMap.values.toList()
+        annotatedClasses.forEach(::buildClassElementDefinitions)
+
+        return classElementDefinitionMap.values.toList()
     }
 
     private fun buildClassElementDefinitions(typeElement: TypeElement) {
         val fullQualifiedClassName = typeElement.asType().toString()
         val classElementDefinition = ClassElementDefinition(typeElement, buildAccessibleFields(typeElement), true)
-        this.classElementDefinitionMap[fullQualifiedClassName] = classElementDefinition
-
-        classElementDefinition.accessibleFields.forEach {
-            if (it.shouldClassBeGenerated) {
-                this.buildClassElementDefinitionsForNestedFields(it.declaredType!!.asElement() as TypeElement)
-            }
-        }
-    }
-
-    private fun buildClassElementDefinitionsForNestedFields(typeElement: TypeElement) {
-        val fullQualifiedClassName = typeElement.asType().toString()
-
-        if (this.classElementDefinitionMap.containsKey(fullQualifiedClassName)) {
-            return
-        }
-
-        val classElementDefinition = ClassElementDefinition(typeElement, buildAccessibleFields(typeElement), false)
-        this.classElementDefinitionMap[fullQualifiedClassName] = classElementDefinition
+        classElementDefinitionMap[fullQualifiedClassName] = classElementDefinition
     }
 
     private fun buildAccessibleFields(clazz: TypeElement): List<FieldElementDefinition> {
