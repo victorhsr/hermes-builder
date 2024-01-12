@@ -51,7 +51,7 @@ class FieldElementDefinitionTest {
             fieldName = fieldName,
             customBuildName = null,
             declaredType = typeMirror,
-            primitiveElement = element,
+            primitiveElement = null,
             shouldClassBeGenerated = true,
             isPrimitiveType = false,
         )

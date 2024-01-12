@@ -51,8 +51,8 @@ class ElementDefinitionsBuilderTest {
         every { FieldFinder.getFieldsFromClazz(personClassTypeElement) } returns listOf(nameFieldTypeElement, addressFieldTypeElement)
         every { FieldFinder.getFieldsFromClazz(addressClassTypeElement) } returns listOf(streetFieldTypeElement)
 
-        mockTypeElement(personClassTypeElement, PERSON_TYPE_NAME, fields = listOf(nameFieldTypeElement, addressFieldTypeElement))
-        mockTypeElement(addressClassTypeElement, ADDRESS_TYPE_NAME, fields = listOf(streetFieldTypeElement))
+        mockTypeElement(personClassTypeElement, PERSON_TYPE_NAME,null,listOf(nameFieldTypeElement, addressFieldTypeElement))
+        mockTypeElement(addressClassTypeElement, ADDRESS_TYPE_NAME, null, listOf(streetFieldTypeElement))
         mockTypeElement(nameFieldTypeElement, NAME_TYPE_NAME, NAME_SIMPLE_NAME)
         mockTypeElement(streetFieldTypeElement, STREET_TYPE_NAME, STREET_SIMPLE_NAME)
         mockTypeElement(addressFieldTypeElement, ADDRESS_TYPE_NAME, ADDRESS_SIMPLE_NAME)

@@ -41,8 +41,8 @@ class FieldElementDefinition {
         val declaredType: DeclaredType? = if (!isPrimitiveType) fieldElement.asType() as DeclaredType else null
 
         this.fieldName = fieldElement.simpleName.toString()
-        this.declaredType = declaredType
-        this.primitiveElement = fieldElement
+        this.declaredType = if (!isPrimitiveType) declaredType else null
+        this.primitiveElement = if (isPrimitiveType) fieldElement else null
         this.isPrimitiveType = isPrimitiveType
         this.shouldClassBeGenerated = shouldClassBeGenerated
         this.customBuildName = fieldElement.getAnnotation(DSLProperty::class.java)?.value
