@@ -29,12 +29,11 @@ class DSLProcessor : AbstractProcessor() {
 
         if (annotatedOtherElements.isNotEmpty()) {
             this.logInvalidElements(annotatedOtherElements)
+        } else {
+            val elementDefinitions = elementDefinitionsBuilder.resolveElementDefinitions(annotatedClasses)
+            val classInfoList = classInfoBuilder.build(elementDefinitions)
+            hermesRunner.genDSL(classInfoList, this.processingEnv.getFiler())
         }
-
-        val elementDefinitions = elementDefinitionsBuilder.resolveElementDefinitions(annotatedClasses)
-        val classInfoList = classInfoBuilder.build(elementDefinitions)
-        hermesRunner.genDSL(classInfoList, this.processingEnv.getFiler())
-
         return false;
     }
 
@@ -51,10 +50,11 @@ class DSLProcessor : AbstractProcessor() {
     }
 
     private fun logInvalidElements(annotatedOtherElements: List<TypeElement>) {
+
         annotatedOtherElements.forEach {
             processingEnv.messager.printMessage(
                 Diagnostic.Kind.ERROR,
-                "${DSL_ROOT_QUALIFIED_NAME} is supposed to be used in classes, but it was found in: $it"
+                "$DSL_ROOT_QUALIFIED_NAME is supposed to be used in classes, but it was found in: $it"
             )
         }
     }
