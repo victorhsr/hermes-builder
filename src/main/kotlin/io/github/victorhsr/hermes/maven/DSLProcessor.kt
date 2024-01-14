@@ -1,7 +1,7 @@
 package io.github.victorhsr.hermes.maven
 
 import com.google.auto.service.AutoService
-import io.github.victorhsr.hermes.core.HermesRunnerFactory
+import io.github.victorhsr.hermes.core.DSLGeneratorFactory
 import io.github.victorhsr.hermes.maven.DSLProcessor.Companion.DSL_ROOT_QUALIFIED_NAME
 import io.github.victorhsr.hermes.maven.element.builder.ElementDefinitionsBuilder
 import javax.annotation.processing.*
@@ -21,7 +21,7 @@ class DSLProcessor : AbstractProcessor() {
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
 
-        val hermesRunner = HermesRunnerFactory.create()
+        val dslGenerator = DSLGeneratorFactory.create()
         val elementDefinitionsBuilder = ElementDefinitionsBuilder()
         val classInfoBuilder = ClassInfoBuilder()
 
@@ -32,9 +32,9 @@ class DSLProcessor : AbstractProcessor() {
         } else {
             val elementDefinitions = elementDefinitionsBuilder.resolveElementDefinitions(annotatedClasses)
             val classInfoList = classInfoBuilder.build(elementDefinitions)
-            hermesRunner.genDSL(classInfoList, this.processingEnv.getFiler())
+            dslGenerator.generate(classInfoList, this.processingEnv.getFiler())
         }
-        return false;
+        return true;
     }
 
     private fun separateAnnotatedElements(
