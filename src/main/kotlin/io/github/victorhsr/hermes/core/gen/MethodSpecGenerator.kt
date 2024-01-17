@@ -17,19 +17,19 @@ class MethodSpecGenerator(private val codeBlockGenerator: CodeBlockGenerator) {
     private fun buildMethodWithoutOptions(attributeInfo: AttributeInfo): MethodSpec {
         return MethodSpec.methodBuilder(attributeInfo.buildMethodName)
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            .addParameter(buildClassType(attributeInfo.type), attributeInfo.name)
+            .addParameter(TypeUtil.buildClassType(attributeInfo.type), attributeInfo.name)
             .addCode(this.codeBlockGenerator.buildCodeBlock(attributeInfo))
-            .returns(buildConsumerType(attributeInfo.wrapperClass))
+            .returns(TypeUtil.buildConsumerType(attributeInfo.wrapperClass))
             .build()
     }
 
     private fun buildMethodWithOptions(attributeInfo: AttributeInfo): MethodSpec {
         return MethodSpec.methodBuilder(attributeInfo.buildMethodName)
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            .addParameter(buildConsumerArrayType(attributeInfo.type), "options")
+            .addParameter(TypeUtil.buildConsumerArrayType(attributeInfo.type), "options")
             .varargs()
             .addCode(this.codeBlockGenerator.buildCodeBlock(attributeInfo))
-            .returns(buildConsumerType(attributeInfo.wrapperClass))
+            .returns(TypeUtil.buildConsumerType(attributeInfo.wrapperClass))
             .addAnnotation(SafeVarargs::class.java)
             .build()
     }
@@ -37,8 +37,8 @@ class MethodSpecGenerator(private val codeBlockGenerator: CodeBlockGenerator) {
     fun buildRootMethod(classInfo: ClassInfo): MethodSpec {
         return MethodSpec.methodBuilder(classInfo.parameterName)
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            .returns(buildClassType(classInfo.fullQualifiedName))
-            .addParameter(buildConsumerArrayType(classInfo.fullQualifiedName), "options")
+            .returns(TypeUtil.buildClassType(classInfo.fullQualifiedName))
+            .addParameter(TypeUtil.buildConsumerArrayType(classInfo.fullQualifiedName), "options")
             .varargs(true)
             .addCode(this.codeBlockGenerator.buildCodeBlock(classInfo))
             .addAnnotation(SafeVarargs::class.java)
