@@ -7,7 +7,9 @@ import io.github.victorhsr.hermes.maven.element.builder.ElementDefinitionsBuilde
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.ElementKind
+import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
+import javax.lang.model.util.ElementFilter
 import javax.tools.Diagnostic
 
 @AutoService(Processor::class)
@@ -46,7 +48,7 @@ class DSLProcessor : AbstractProcessor() {
         return roundEnv
             .getElementsAnnotatedWith(annotation)
             .map { it as TypeElement }
-            .partition { it.kind == ElementKind.CLASS }
+            .partition(this::isClassWithDefaultConstructor)
     }
 
     private fun logInvalidElements(annotatedOtherElements: List<TypeElement>) {
@@ -54,8 +56,16 @@ class DSLProcessor : AbstractProcessor() {
         annotatedOtherElements.forEach {
             processingEnv.messager.printMessage(
                 Diagnostic.Kind.ERROR,
-                "$DSL_ROOT_QUALIFIED_NAME is supposed to be used in classes, but it was found in: $it"
+                "$DSL_ROOT_QUALIFIED_NAME is supposed to be used in classes with default constructor, but it was found in: $it"
             )
         }
+    }
+
+    private fun isClassWithDefaultConstructor(element: TypeElement): Boolean {
+        return element.kind == ElementKind.CLASS
+                &&
+                ElementFilter.constructorsIn(element.enclosedElements).any {
+                    it.modifiers.contains(Modifier.PUBLIC) && it.parameters.isEmpty()
+                }
     }
 }

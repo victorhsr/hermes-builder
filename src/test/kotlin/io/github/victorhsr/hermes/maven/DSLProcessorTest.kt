@@ -5,10 +5,7 @@ import io.github.victorhsr.hermes.core.annotations.DSLRoot
 import io.github.victorhsr.hermes.core.gen.DSLGenerator
 import io.github.victorhsr.hermes.maven.element.ClassElementDefinition
 import io.github.victorhsr.hermes.maven.element.builder.ElementDefinitionsBuilder
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.mockkConstructor
-import io.mockk.verify
+import io.mockk.*
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import javax.annotation.processing.Filer
@@ -16,7 +13,10 @@ import javax.annotation.processing.Messager
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.ElementKind
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
+import javax.lang.model.util.ElementFilter
 import javax.tools.Diagnostic
 
 class DSLProcessorTest {
@@ -36,11 +36,15 @@ class DSLProcessorTest {
         val classInfoList: List<ClassInfo> = mockk<List<ClassInfo>>()
         val processingEnvironment: ProcessingEnvironment = mockk<ProcessingEnvironment>()
         val filer: Filer = mockk<Filer>()
+        val publicConstructor: ExecutableElement = mockPublicConstructor()
 
         every { anyConstructed<ElementDefinitionsBuilder>().resolveElementDefinitions(listOf(annotatedElement)) } returns elementDefinitions
         every { anyConstructed<ClassInfoBuilder>().build(elementDefinitions) } returns classInfoList
         every { processingEnvironment.filer } returns filer
         every { anyConstructed<DSLGenerator>().generate(any(), any()) } returns Unit
+
+        mockkStatic(ElementFilter::class)
+        every { ElementFilter.constructorsIn(annotatedElement.enclosedElements) } returns listOf(publicConstructor)
 
         val dslProcessor = DSLProcessor()
         dslProcessor.init(processingEnvironment)
@@ -53,8 +57,16 @@ class DSLProcessorTest {
         assertTrue(processingResult)
     }
 
+    private fun mockPublicConstructor(): ExecutableElement {
+        val executableElement = mockk<ExecutableElement>()
+        every { executableElement.modifiers } returns setOf(Modifier.PUBLIC)
+        every { executableElement.parameters } returns listOf()
+
+        return executableElement
+    }
+
     @Test
-    fun `should log invalid annotated elements`() {
+    fun `should log invalid annotated elements (not a class)`() {
         // given
         mockkConstructor(ProcessingEnvironment::class)
 
@@ -79,7 +91,42 @@ class DSLProcessorTest {
         verify {
             messager.printMessage(
                 eq(Diagnostic.Kind.ERROR),
-                eq("${DSLRoot::class.qualifiedName} is supposed to be used in classes, but it was found in: $annotatedElement")
+                eq("${DSLRoot::class.qualifiedName} is supposed to be used in classes with default constructor, but it was found in: $annotatedElement")
+            )
+        }
+        assertTrue(processingResult)
+    }
+
+    @Test
+    fun `should log invalid annotated elements (don't have public constructor)`() {
+        // given
+        mockkConstructor(ProcessingEnvironment::class)
+
+        val annotation: TypeElement = mockk<TypeElement>()
+        val annotatedElement: TypeElement = mockAnnotatedElement()
+        val roundEnv: RoundEnvironment = mockRoundEnv(annotation, annotatedElement)
+        val processingEnvironment: ProcessingEnvironment = mockk<ProcessingEnvironment>()
+        val filer: Filer = mockk<Filer>()
+        val messager: Messager = mockk<Messager>()
+
+        every { processingEnvironment.filer } returns filer
+        every { processingEnvironment.messager } returns messager
+        every { messager.printMessage(any(), any()) } returns Unit
+
+        mockkStatic(ElementFilter::class)
+        every { ElementFilter.constructorsIn(annotatedElement.enclosedElements) } returns listOf()
+
+        val dslProcessor = DSLProcessor()
+        dslProcessor.init(processingEnvironment)
+
+        // when
+        val processingResult: Boolean = dslProcessor.process(setOf(annotation), roundEnv)
+
+        // then
+        verify {
+            messager.printMessage(
+                eq(Diagnostic.Kind.ERROR),
+                eq("${DSLRoot::class.qualifiedName} is supposed to be used in classes with default constructor, but it was found in: $annotatedElement")
             )
         }
         assertTrue(processingResult)
