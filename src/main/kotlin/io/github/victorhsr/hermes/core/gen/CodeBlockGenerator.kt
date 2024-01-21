@@ -28,7 +28,6 @@ class CodeBlockGenerator {
             .build()
     }
 
-
     private fun buildCodeBlockWithoutOptions(attributeInfo: AttributeInfo): CodeBlock {
         val wrapperClassParamName = attributeInfo.wrapperClassParamName
 
