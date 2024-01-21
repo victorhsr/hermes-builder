@@ -26,6 +26,15 @@ object TypeUtil {
         return TypeVariableName.get(fullQualifiedClassName)
     }
 
+    fun buildConsumerType(fullQualifiedClassName: String): ParameterizedTypeName {
+        val className = buildClassType(fullQualifiedClassName)
+        return ParameterizedTypeName.get(ClassName.get(Consumer::class.java), className)
+    }
+
+    fun buildConsumerArrayType(fullQualifiedClassName: String): ArrayTypeName {
+        return ArrayTypeName.of(buildConsumerType(fullQualifiedClassName))
+    }
+
     private fun buildClassTypeForGenerics(typeAsString: String): TypeName {
         val startIndex = typeAsString.indexOf(LESS_THAN_SYMBOL)
         val endIndex = typeAsString.lastIndexOf(GREATER_THAN_SYMBOL)
@@ -76,14 +85,5 @@ object TypeUtil {
         genericTypes.add(genericTypesString.substring(start))
 
         return genericTypes
-    }
-
-    fun buildConsumerType(fullQualifiedClassName: String): ParameterizedTypeName {
-        val className = buildClassType(fullQualifiedClassName)
-        return ParameterizedTypeName.get(ClassName.get(Consumer::class.java), className)
-    }
-
-    fun buildConsumerArrayType(fullQualifiedClassName: String): ArrayTypeName {
-        return ArrayTypeName.of(buildConsumerType(fullQualifiedClassName))
     }
 }

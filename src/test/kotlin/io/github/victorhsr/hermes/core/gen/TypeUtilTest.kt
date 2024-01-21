@@ -1,15 +1,13 @@
 package io.github.victorhsr.hermes.core.gen
 
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeVariableName
+import com.squareup.javapoet.*
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import java.util.function.Consumer
 
 class TypeUtilTest {
 
@@ -35,9 +33,9 @@ class TypeUtilTest {
         @Test
         fun `build type for non-primitive data type`() {
             // given
-            val fullQualifiedClassName = "java.lang.String"
             val packageName = "java.lang"
             val className = "String"
+            val fullQualifiedClassName = "$packageName.$className"
 
             val expectedResult = mockk<ClassName>()
 
@@ -54,82 +52,95 @@ class TypeUtilTest {
         @Test
         fun `build type for non-primitive data type with generics`() {
             // given
-            val fullQualifiedClassName = "java.util.Map<java.lang.String,java.util.List<java.lang.String>>"
+            val fullQualifiedTypeName = "java.util.Map<java.lang.String,java.util.List<java.lang.Integer>>"
+            val stringClassName = mockk<ClassName>()
+            val integerClassName = mockk<ClassName>()
+            val listClassName = mockk<ClassName>()
+            val mapClassName = mockk<ClassName>()
+            val listParameterizedTypeName = mockk<ParameterizedTypeName>()
+            val mapParameterizedTypeName = mockk<ParameterizedTypeName>()
 
-            val expectedResult = mockk<ClassName>()
+            mockkStatic(ClassName::class)
+            every { ClassName.bestGuess("java.lang.String") } returns stringClassName
+            every { ClassName.bestGuess("java.lang.Integer") } returns integerClassName
+            every { ClassName.bestGuess("java.util.List") } returns listClassName
+            every { ClassName.bestGuess("java.util.Map") } returns mapClassName
 
-//            mockkStatic(ClassName::class)
-//            mockkStatic(ParameterizedTypeName::class)
+            mockkStatic(ParameterizedTypeName::class)
+            every { ParameterizedTypeName.get(listClassName, integerClassName) } returns listParameterizedTypeName
+            every {
+                ParameterizedTypeName.get(
+                    mapClassName,
+                    stringClassName,
+                    listParameterizedTypeName
+                )
+            } returns mapParameterizedTypeName
 
             // when
-            val actual: TypeName = TypeUtil.buildClassType(fullQualifiedClassName)
+            val actual: TypeName = TypeUtil.buildClassType(fullQualifiedTypeName)
+
+            // then
+            assertThat(actual).isEqualTo(mapParameterizedTypeName)
+        }
+
+    }
+
+    @Nested
+    inner class BuildConsumerType {
+
+        @Test
+        fun `build consumer type`() {
+            // given
+            val expectedResult = mockk<ParameterizedTypeName>()
+            val packageName = "io.my-packege"
+            val clazz = "Foo"
+            val fullQualifiedClassName = "$packageName.$clazz"
+
+            val className = mockk<ClassName>()
+            val consumerClassName = mockk<ClassName>()
+
+            mockkStatic(ClassName::class)
+            every { ClassName.get(packageName, clazz) } returns className
+            every { ClassName.get(Consumer::class.java) } returns consumerClassName
+
+            mockkStatic(ParameterizedTypeName::class)
+            every { ParameterizedTypeName.get(consumerClassName, className) } returns expectedResult
+
+            // when
+            val actual: TypeName = TypeUtil.buildConsumerType(fullQualifiedClassName)
 
             // then
             assertThat(actual).isEqualTo(expectedResult)
         }
 
+        @Test
+        fun `build consumer array type`() {
+            // given
+            val expectedResult = mockk<ArrayTypeName>()
+            val packageName = "io.my-packege"
+            val clazz = "Foo"
+            val fullQualifiedClassName = "$packageName.$clazz"
+
+            val className = mockk<ClassName>()
+            val consumerClassName = mockk<ClassName>()
+            val consumerParameterizedTypeName = mockk<ParameterizedTypeName>()
+
+            mockkStatic(ClassName::class)
+            every { ClassName.get(packageName, clazz) } returns className
+            every { ClassName.get(Consumer::class.java) } returns consumerClassName
+
+            mockkStatic(ParameterizedTypeName::class)
+            every { ParameterizedTypeName.get(consumerClassName, className) } returns consumerParameterizedTypeName
+
+            mockkStatic(ArrayTypeName::class)
+            every { ArrayTypeName.of(consumerParameterizedTypeName) } returns expectedResult
+
+            // when
+            val actual: TypeName = TypeUtil.buildConsumerArrayType(fullQualifiedClassName)
+
+            // then
+            assertThat(actual).isEqualTo(expectedResult)
+        }
     }
 
 }
-
-//
-//ClassName.bestGuess(typeAsString)
-//java.lang.String
-//
-//ClassName.bestGuess(typeAsString)
-//java.lang.String
-//
-//ClassName.bestGuess(className)
-//java.util.List
-//
-//ParameterizedTypeName.get(classNameObj, *typeNameArgs)
-//classNameObj = {ClassName@4603} "java.util.List"
-//packageName = "java.util"
-//enclosingClassName = null
-//simpleName = "List"
-//simpleNames = null
-//canonicalName = "java.util.List"
-//keyword = null
-//annotations = {Collections$UnmodifiableRandomAccessList@4622}  size = 0
-//cachedString = "java.util.List"
-//typeNameArgs = {TypeName[1]@4604}
-//0 = {ClassName@4613} "java.lang.String"
-//packageName = "java.lang"
-//enclosingClassName = null
-//simpleName = "String"
-//simpleNames = null
-//canonicalName = "java.lang.String"
-//keyword = null
-//annotations = {Collections$UnmodifiableRandomAccessList@4618}  size = 0
-//cachedString = "java.lang.String"
-//
-//ClassName.bestGuess(className)
-//java.util.Map
-//
-//ParameterizedTypeName.get(classNameObj, *typeNameArgs)
-//classNameObj = {ClassName@4630} "java.util.Map"
-//packageName = "java.util"
-//enclosingClassName = null
-//simpleName = "Map"
-//simpleNames = null
-//canonicalName = "java.util.Map"
-//keyword = null
-//annotations = {Collections$UnmodifiableRandomAccessList@4651}  size = 0
-//cachedString = "java.util.Map"
-//typeNameArgs = {TypeName[2]@4631}
-//0 = {ClassName@4634} "java.lang.String"
-//packageName = "java.lang"
-//enclosingClassName = null
-//simpleName = "String"
-//simpleNames = null
-//canonicalName = "java.lang.String"
-//keyword = null
-//annotations = {Collections$UnmodifiableRandomAccessList@4646}  size = 0
-//cachedString = "java.lang.String"
-//1 = {ParameterizedTypeName@4635} "java.util.List<java.lang.String>"
-//enclosingType = null
-//rawType = {ClassName@4638} "java.util.List"
-//typeArguments = {Collections$UnmodifiableRandomAccessList@4639}  size = 1
-//keyword = null
-//annotations = {Collections$UnmodifiableRandomAccessList@4640}  size = 0
-//cachedString = "java.util.List<java.lang.String>"
