@@ -4,6 +4,7 @@ import io.github.victorhsr.hermes.core.annotations.DSLRoot;
 
 import java.util.Objects;
 
+@DSLRoot
 public class CustomGenericKeyValuePair<K, V> {
 
     private K key;

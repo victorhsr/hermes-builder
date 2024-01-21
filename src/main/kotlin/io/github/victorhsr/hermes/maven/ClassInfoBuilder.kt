@@ -14,11 +14,10 @@ class ClassInfoBuilder {
     }
 
     private fun buildClassInfo(classDefinition: ClassElementDefinition): ClassInfo {
-        val fullQualifiedClassName = classDefinition.element.qualifiedName.toString()
         val simpleName = classDefinition.element.simpleName.toString()
 
         return ClassInfo(
-            fullQualifiedName = fullQualifiedClassName,
+            fullQualifiedName = classDefinition.fullQualifiedClassName,
             parameterName = simpleName.replaceFirstChar { it.lowercase(Locale.getDefault()) },
             isRoot = classDefinition.wasAnnotated,
             attributes = classDefinition.accessibleFields.map { this.buildAttributeInfo(classDefinition, it) }
@@ -30,20 +29,19 @@ class ClassInfoBuilder {
         fieldDefinition: FieldElementDefinition
     ): AttributeInfo {
 
-        val type = if (fieldDefinition.isPrimitiveType) {
-            fieldDefinition.primitiveElement?.asType().toString()
+        val typeName: String = if (fieldDefinition.isGenericType) {
+            "java.lang.Object"
         } else {
-            fieldDefinition.declaredType.toString()
+            fieldDefinition.fullTypeName
         }
 
         return AttributeInfo(
             name = fieldDefinition.fieldName,
             buildMethodName = fieldDefinition.customBuildName ?: fieldDefinition.fieldName,
             setterMethodName = "set${fieldDefinition.fieldName.myCapitalize()}",
-            type = type,
-            wrapperClass = parentClassElementDefinition.element.qualifiedName.toString(),
+            type = typeName,
+            wrapperClass = parentClassElementDefinition.fullQualifiedClassName,
             hasOptions = fieldDefinition.shouldClassBeGenerated,
         )
     }
-
 }
