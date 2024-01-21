@@ -9,6 +9,7 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.mockkObject
 import org.assertj.core.api.Assertions.assertThat
+import org.hamcrest.core.Every
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import javax.lang.model.element.Name
@@ -35,6 +36,7 @@ class ElementDefinitionsBuilderTest {
     private lateinit var streetFieldTypeElement: TypeElement
 
     private companion object {
+        const val PERSON_SIMPLE_NAME = "PERSON_SIMPLE_NAME"
         const val PERSON_TYPE_NAME = "PERSON_TYPE_NAME"
         const val ADDRESS_TYPE_NAME = "ADDRESS_TYPE_NAME"
         const val NAME_SIMPLE_NAME = "NAME_SIMPLE_NAME"
@@ -48,11 +50,20 @@ class ElementDefinitionsBuilderTest {
     fun `resolveElementDefinitions should create the element definitions based on the class annotations`() {
         // given
         mockkObject(FieldFinder)
-        every { FieldFinder.getFieldsFromClazz(personClassTypeElement) } returns listOf(nameFieldTypeElement, addressFieldTypeElement)
+        every { FieldFinder.getFieldsFromClazz(personClassTypeElement) } returns listOf(
+            nameFieldTypeElement,
+            addressFieldTypeElement
+        )
         every { FieldFinder.getFieldsFromClazz(addressClassTypeElement) } returns listOf(streetFieldTypeElement)
 
-        mockTypeElement(personClassTypeElement, PERSON_TYPE_NAME,null,listOf(nameFieldTypeElement, addressFieldTypeElement))
-        mockTypeElement(addressClassTypeElement, ADDRESS_TYPE_NAME, null, listOf(streetFieldTypeElement))
+        mockTypeElement(
+            personClassTypeElement,
+            PERSON_TYPE_NAME,
+            PERSON_SIMPLE_NAME,
+            listOf(nameFieldTypeElement, addressFieldTypeElement)
+        )
+
+        mockTypeElement(addressClassTypeElement, ADDRESS_TYPE_NAME, ADDRESS_SIMPLE_NAME, listOf(streetFieldTypeElement))
         mockTypeElement(nameFieldTypeElement, NAME_TYPE_NAME, NAME_SIMPLE_NAME)
         mockTypeElement(streetFieldTypeElement, STREET_TYPE_NAME, STREET_SIMPLE_NAME)
         mockTypeElement(addressFieldTypeElement, ADDRESS_TYPE_NAME, ADDRESS_SIMPLE_NAME)
@@ -78,6 +89,7 @@ class ElementDefinitionsBuilderTest {
     private fun buildAddressClassElementDefinition(): ClassElementDefinition {
         return ClassElementDefinition(
             element = addressClassTypeElement,
+            fullQualifiedClassName = ADDRESS_TYPE_NAME,
             accessibleFields = listOf(buildStreetElementDefinition()),
             wasAnnotated = true
         )
@@ -86,6 +98,7 @@ class ElementDefinitionsBuilderTest {
     private fun buildPersonClassElementDefinition(): ClassElementDefinition {
         return ClassElementDefinition(
             element = personClassTypeElement,
+            fullQualifiedClassName = PERSON_TYPE_NAME,
             accessibleFields = listOf(buildNameElementDefinition(), buildAddressElementDefinition()),
             wasAnnotated = true
         )
@@ -93,34 +106,31 @@ class ElementDefinitionsBuilderTest {
 
     private fun buildStreetElementDefinition(): FieldElementDefinition {
         return FieldElementDefinition(
-            fieldName = STREET_SIMPLE_NAME,
-            customBuildName = null,
-            declaredType = null,
-            primitiveElement = streetFieldTypeElement,
+            fieldElement = streetFieldTypeElement,
+            fullTypeName = STREET_TYPE_NAME,
             shouldClassBeGenerated = false,
-            isPrimitiveType = true
+            isPrimitiveType = true,
+            isGenericType = false
         )
     }
 
     private fun buildAddressElementDefinition(): FieldElementDefinition {
         return FieldElementDefinition(
-            fieldName = ADDRESS_SIMPLE_NAME,
-            customBuildName = null,
-            declaredType = null,
-            primitiveElement = addressFieldTypeElement,
+            fieldElement = addressFieldTypeElement,
+            fullTypeName = ADDRESS_TYPE_NAME,
             shouldClassBeGenerated = true,
-            isPrimitiveType = true
+            isPrimitiveType = true,
+            isGenericType = false
         )
     }
 
     private fun buildNameElementDefinition(): FieldElementDefinition {
         return FieldElementDefinition(
-            fieldName = NAME_SIMPLE_NAME,
-            customBuildName = null,
-            declaredType = null,
-            primitiveElement = nameFieldTypeElement,
+            fieldElement = nameFieldTypeElement,
+            fullTypeName = NAME_TYPE_NAME,
             shouldClassBeGenerated = false,
-            isPrimitiveType = true
+            isPrimitiveType = true,
+            isGenericType = false
         )
     }
 
@@ -135,6 +145,7 @@ class ElementDefinitionsBuilderTest {
         every { typeElement.enclosedElements } returns fields
         every { typeElement.simpleName } returns if (typeSimpleName != null) mockName(typeSimpleName) else null
         every { typeElement.getAnnotation(any<Class<DSLProperty>>()) } returns null
+        every { typeElement.typeParameters } returns listOf()
     }
 
     private fun mockName(personSimpleName: String): Name {

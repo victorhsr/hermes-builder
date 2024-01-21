@@ -3,11 +3,11 @@ package io.github.victorhsr.hermes.sample;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import static io.github.victorhsr.hermes.sample.AddressDSL.houseNumber;
 import static io.github.victorhsr.hermes.sample.AddressDSL.street;
-import static io.github.victorhsr.hermes.sample.ExpectedCustomGenericKeyValuePairDSL.*;
+import static io.github.victorhsr.hermes.sample.ExpectedCustomGenericKeyValuePairDSL.key;
+import static io.github.victorhsr.hermes.sample.ExpectedCustomGenericKeyValuePairDSL.value;
 import static io.github.victorhsr.hermes.sample.PersonDSL.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 

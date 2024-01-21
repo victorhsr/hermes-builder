@@ -9,16 +9,18 @@ import java.util.*
 
 class ClassInfoBuilder {
 
+    companion object {
+        private const val OBJECT_TYPE_NAME = "java.lang.Object"
+    }
+
     fun build(classElementDefinitions: List<ClassElementDefinition>): List<ClassInfo> {
         return classElementDefinitions.map(this::buildClassInfo)
     }
 
     private fun buildClassInfo(classDefinition: ClassElementDefinition): ClassInfo {
-        val simpleName = classDefinition.element.simpleName.toString()
-
         return ClassInfo(
             fullQualifiedName = classDefinition.fullQualifiedClassName,
-            parameterName = simpleName.replaceFirstChar { it.lowercase(Locale.getDefault()) },
+            parameterName = classDefinition.simpleName.replaceFirstChar { it.lowercase(Locale.getDefault()) },
             isRoot = classDefinition.wasAnnotated,
             attributes = classDefinition.accessibleFields.map { this.buildAttributeInfo(classDefinition, it) }
         )
@@ -30,7 +32,7 @@ class ClassInfoBuilder {
     ): AttributeInfo {
 
         val typeName: String = if (fieldDefinition.isGenericType) {
-            "java.lang.Object"
+            OBJECT_TYPE_NAME
         } else {
             fieldDefinition.fullTypeName
         }

@@ -2,6 +2,7 @@ package io.github.victorhsr.hermes.maven
 
 import io.github.victorhsr.hermes.core.AttributeInfo
 import io.github.victorhsr.hermes.core.ClassInfo
+import io.github.victorhsr.hermes.core.annotations.DSLProperty
 import io.github.victorhsr.hermes.core.ext.uncapitalize
 import io.github.victorhsr.hermes.maven.element.ClassElementDefinition
 import io.github.victorhsr.hermes.maven.element.FieldElementDefinition
@@ -79,6 +80,7 @@ class ClassInfoBuilderTest {
     private fun mockPerson(): ClassElementDefinition {
         return ClassElementDefinition(
             element = mockPersonClassTypeElement(),
+            fullQualifiedClassName = PERSON_TYPE_FULL_QUALIFIED_NAME,
             accessibleFields = listOf(buildNameElementDefinition(), buildAgeElementDefinition()),
             wasAnnotated = true
         )
@@ -101,29 +103,30 @@ class ClassInfoBuilderTest {
 
     private fun buildNameElementDefinition(): FieldElementDefinition {
         return FieldElementDefinition(
+            fullTypeName = NAME_TYPE_NAME,
             fieldName = NAME_SIMPLE_NAME,
             customBuildName = null,
-            declaredType = mockDeclaredType(NAME_TYPE_NAME),
-            primitiveElement = null,
             shouldClassBeGenerated = false,
-            isPrimitiveType = false
+            isPrimitiveType = false,
+            isGenericType = false
         )
     }
 
     private fun buildAgeElementDefinition(): FieldElementDefinition {
         return FieldElementDefinition(
-            fieldName = AGE_SIMPLE_NAME,
-            customBuildName = null,
-            declaredType = null,
-            primitiveElement = mockElement(AGE_TYPE_NAME),
+            fieldElement = mockElement(AGE_SIMPLE_NAME, AGE_TYPE_NAME),
+            fullTypeName = AGE_TYPE_NAME,
             shouldClassBeGenerated = false,
-            isPrimitiveType = true
+            isPrimitiveType = true,
+            isGenericType = false
         )
     }
 
-    private fun mockElement(typeName: String): Element {
+    private fun mockElement(simpleName: String, typeName: String): Element {
         val element = mockk<Element>()
         every { element.asType() } returns mockTypeMirror(typeName)
+        every { element.simpleName } returns mockName(simpleName)
+        every { element.getAnnotation(any<Class<DSLProperty>>()) } returns null
 
         return element
     }
@@ -133,12 +136,5 @@ class ClassInfoBuilderTest {
         every { typeMirror.toString() } returns typeName
 
         return typeMirror
-    }
-
-    private fun mockDeclaredType(declaredTypeName: String): DeclaredType {
-        val declaredType = mockk<DeclaredType>()
-        every { declaredType.toString() } returns declaredTypeName
-
-        return declaredType
     }
 }

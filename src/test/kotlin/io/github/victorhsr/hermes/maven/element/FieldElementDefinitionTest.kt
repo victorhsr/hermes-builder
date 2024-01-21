@@ -19,45 +19,29 @@ class FieldElementDefinitionTest {
     }
 
     @Test
-    fun `should build FieldElementDefinition from primitive Element`() {
-        // given
-        val fieldName = "field"
-        val element: Element = mockElement(name = fieldName, typeMirror = mockType(true), hasCustomName = false)
-
-        val expectedResult = FieldElementDefinition(
-            fieldName = fieldName,
-            customBuildName = null,
-            declaredType = null,
-            primitiveElement = element,
-            shouldClassBeGenerated = false,
-            isPrimitiveType = true
-        )
-
-        // when
-        val actual = FieldElementDefinition(fieldElement = element, shouldClassBeGenerated = false)
-
-        // then
-        assertThat(actual).isEqualTo(expectedResult)
-    }
-
-    @Test
     fun `should build FieldElementDefinition`() {
         // given
         val fieldName = "field"
-        val typeMirror: DeclaredType = mockType(false)
-        val element: Element = mockElement(name = fieldName, typeMirror = typeMirror)
+        val fullName = "full-name"
+        val element: Element = mockElement(name = fieldName, typeMirror = mockType(true), hasCustomName = false)
 
         val expectedResult = FieldElementDefinition(
+            fullTypeName = fullName,
             fieldName = fieldName,
             customBuildName = null,
-            declaredType = typeMirror,
-            primitiveElement = null,
-            shouldClassBeGenerated = true,
-            isPrimitiveType = false,
+            shouldClassBeGenerated = false,
+            isPrimitiveType = true,
+            isGenericType = false
         )
 
         // when
-        val actual = FieldElementDefinition(fieldElement = element, shouldClassBeGenerated = true)
+        val actual = FieldElementDefinition(
+            fieldElement = element,
+            shouldClassBeGenerated = false,
+            fullTypeName = fullName,
+            isPrimitiveType = true,
+            isGenericType = false
+        )
 
         // then
         assertThat(actual).isEqualTo(expectedResult)

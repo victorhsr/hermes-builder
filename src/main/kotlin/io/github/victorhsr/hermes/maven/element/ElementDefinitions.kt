@@ -2,15 +2,25 @@ package io.github.victorhsr.hermes.maven.element
 
 import io.github.victorhsr.hermes.core.annotations.DSLProperty
 import javax.lang.model.element.Element
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.DeclaredType
 
 data class ClassElementDefinition(
-    val element: TypeElement,
+    val simpleName: String,
     val fullQualifiedClassName: String,
     val accessibleFields: List<FieldElementDefinition>,
-    val wasAnnotated: Boolean
-)
+    val wasAnnotated: Boolean,
+) {
+    constructor(
+        element: Element,
+        fullQualifiedClassName: String,
+        accessibleFields: List<FieldElementDefinition>,
+        wasAnnotated: Boolean,
+    ) : this(
+        simpleName = element.simpleName.toString(),
+        fullQualifiedClassName = fullQualifiedClassName,
+        accessibleFields = accessibleFields,
+        wasAnnotated = wasAnnotated
+    )
+}
 
 data class FieldElementDefinition(
     val fieldName: String,
@@ -18,7 +28,6 @@ data class FieldElementDefinition(
     val customBuildName: String?,
     val shouldClassBeGenerated: Boolean,
     val isPrimitiveType: Boolean,
-    val fieldElement: Element,
     val isGenericType: Boolean
 ) {
     constructor(
@@ -28,7 +37,6 @@ data class FieldElementDefinition(
         isPrimitiveType: Boolean,
         isGenericType: Boolean
     ) : this(
-        fieldElement = fieldElement,
         fullTypeName = fullTypeName,
         fieldName = fieldElement.simpleName.toString(),
         customBuildName = fieldElement.getAnnotation(DSLProperty::class.java)?.value,
