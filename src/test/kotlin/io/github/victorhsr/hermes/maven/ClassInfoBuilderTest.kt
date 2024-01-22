@@ -13,19 +13,25 @@ import org.junit.jupiter.api.Test
 import javax.lang.model.element.Element
 import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
-import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
 class ClassInfoBuilderTest {
 
     private companion object {
-        const val SET_PREFIX = "set"
-        const val PERSON_TYPE_NAME = "PERSON_TYPE_NAME"
-        const val AGE_SIMPLE_NAME = "AGE_SIMPLE_NAME"
-        const val NAME_TYPE_NAME = "NAME_TYPE_NAME"
-        const val PERSON_TYPE_FULL_QUALIFIED_NAME = "PACKAGE.PERSON_TYPE_FULL_QUALIFIED_NAME"
-        const val NAME_SIMPLE_NAME = "NAME_SIMPLE_NAME"
-        const val AGE_TYPE_NAME = "AGE_TYPE_NAME"
+        private const val SET_PREFIX = "set"
+        private const val OBJECT_TYPE_NAME = "java.lang.Object"
+
+        private const val PERSON_TYPE_NAME = "PERSON_TYPE_NAME"
+        private const val PERSON_TYPE_FULL_QUALIFIED_NAME = "PACKAGE.PERSON_TYPE_FULL_QUALIFIED_NAME"
+
+        private const val AGE_SIMPLE_NAME = "AGE_SIMPLE_NAME"
+        private const val AGE_TYPE_NAME = "AGE_TYPE_NAME"
+
+        private const val NAME_TYPE_NAME = "NAME_TYPE_NAME"
+        private const val NAME_SIMPLE_NAME = "NAME_SIMPLE_NAME"
+
+        private const val K_TYPE_NAME = "K_TYPE_NAME"
+        private const val K_SIMPLE_NAME = "K_SIMPLE_NAME"
     }
 
     @Test
@@ -49,7 +55,8 @@ class ClassInfoBuilderTest {
                 isRoot = true,
                 attributes = listOf(
                     buildNameAttributeInfo(),
-                    buildAgeAttributeInfo()
+                    buildAgeAttributeInfo(),
+                    buildKAttributeInfo()
                 )
             )
         )
@@ -77,11 +84,26 @@ class ClassInfoBuilderTest {
         )
     }
 
+    private fun buildKAttributeInfo(): AttributeInfo {
+        return AttributeInfo(
+            name = K_SIMPLE_NAME,
+            setterMethodName = SET_PREFIX + K_SIMPLE_NAME,
+            type = OBJECT_TYPE_NAME,
+            wrapperClass = PERSON_TYPE_FULL_QUALIFIED_NAME,
+            hasOptions = false,
+            buildMethodName = K_SIMPLE_NAME
+        )
+    }
+
     private fun mockPerson(): ClassElementDefinition {
         return ClassElementDefinition(
             element = mockPersonClassTypeElement(),
             fullQualifiedClassName = PERSON_TYPE_FULL_QUALIFIED_NAME,
-            accessibleFields = listOf(buildNameElementDefinition(), buildAgeElementDefinition()),
+            accessibleFields = listOf(
+                buildNameElementDefinition(),
+                buildAgeElementDefinition(),
+                buildKElementDefinition()
+            ),
             wasAnnotated = true
         )
     }
@@ -109,6 +131,17 @@ class ClassInfoBuilderTest {
             shouldClassBeGenerated = false,
             isPrimitiveType = false,
             isGenericType = false
+        )
+    }
+
+    private fun buildKElementDefinition(): FieldElementDefinition {
+        return FieldElementDefinition(
+            fullTypeName = K_TYPE_NAME,
+            fieldName = K_SIMPLE_NAME,
+            customBuildName = null,
+            shouldClassBeGenerated = false,
+            isPrimitiveType = false,
+            isGenericType = true
         )
     }
 
