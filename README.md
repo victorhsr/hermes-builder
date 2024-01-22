@@ -108,12 +108,12 @@ public Person buildPerson() {
             .name("Victor")
             .age(99)
             .address(buildAddress())
-            .characteristic(buildMetaDataWrapper())
+            .setMetaDataWrapper(buildMetaDataWrapper())
             .build();
 }
 
 private MetaDataWrapper<String, String> buildMetaDataWrapper() {
-    return CustomGenericKeyValuePair
+    return MetaDataWrapper
             .builder()
             .key("LAST_LOGIN")
             .value("01-01-2024")
