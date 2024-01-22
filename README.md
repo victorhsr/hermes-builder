@@ -63,7 +63,7 @@ Person personFromDsl =
 
 Note that there's no need to instantiate `Address` or `MetaDataWrapper`, and more descriptive names for Person's fields can be used.
 
-# Comparison with Traditional Java Classes and Builders
+# Comparison with Traditional Java Classes
 
 The equivalent implementation in traditional Java code involves a considerable amount of boilerplate:
 
