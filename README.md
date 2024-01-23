@@ -1,4 +1,5 @@
 [![Maven Build](https://github.com/victorhsr/hermes-maven-plugin/workflows/Maven%20Build/badge.svg)](https://github.com/victorhsr/hermes-maven-plugin/actions?query=workflow%3A"Maven+Build")
+[![Coverage Status](https://coveralls.io/repos/github/victorhsr/hermes-maven-plugin/badge.svg)](https://coveralls.io/github/victorhsr/hermes-maven-plugin)
 
 # Hermes Maven Plugin
 

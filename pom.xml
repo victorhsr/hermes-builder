@@ -26,9 +26,26 @@
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
         <plugins>
             <plugin>
+                <groupId>com.github.hazendaz.maven</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <version>4.5.0-M2</version>
+                <configuration>
+                    <scanForSources>true</scanForSources>
+                    <sourceDirectories>
+                        <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+                        <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
+                    </sourceDirectories>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.11</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*DSL.class</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
