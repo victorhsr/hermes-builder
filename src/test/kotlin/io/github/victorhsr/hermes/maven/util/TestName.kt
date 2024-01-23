@@ -11,11 +11,11 @@ class TestName(private val nameValue: String) : Name {
 
     override fun get(index: Int) = nameValue[index]
 
-    override fun subSequence(start: Int, end: Int) = nameValue.subSequence(start, end)
+    override fun subSequence(startIndex: Int, endIndex: Int) = nameValue.subSequence(startIndex, endIndex)
 
     override fun hashCode() = nameValue.hashCode()
 
-    override fun equals(obj: Any?) = nameValue == obj.toString()
+    override fun equals(other: Any?) = nameValue == other.toString()
 
     override fun toString() = nameValue
 }
