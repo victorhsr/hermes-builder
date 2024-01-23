@@ -2,6 +2,7 @@
 [![Maven Build](https://github.com/victorhsr/hermes-maven-plugin/workflows/Maven%20Build/badge.svg)](https://github.com/victorhsr/hermes-maven-plugin/actions?query=workflow%3A"Maven+Build")
 [![Coverage Status](https://coveralls.io/repos/github/victorhsr/hermes-maven-plugin/badge.svg)](https://coveralls.io/github/victorhsr/hermes-maven-plugin)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/mit)
+[![](https://jitpack.io/v/victorhsr/hermes-maven-plugin.svg)](https://jitpack.io/#victorhsr/hermes-maven-plugin)
 
 Hermes is a Maven plugin designed to streamline the generation of fluent object builders for your Java classes. Employing a declarative approach, it produces a straightforward Domain Specific Language (DSL) to facilitate the construction of object instances.
 
