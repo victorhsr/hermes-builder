@@ -1,3 +1,5 @@
+[![Maven Build](https://github.com/victorhsr/hermes-maven-plugin/workflows/Maven%20Build/badge.svg)](https://github.com/victorhsr/hermes-maven-plugin/actions?query=workflow%3A"Maven+Build")
+
 # Hermes Maven Plugin
 
 Hermes is a Maven plugin designed to streamline the generation of fluent object builders for your Java classes. Employing a declarative approach, it produces a straightforward Domain Specific Language (DSL) to facilitate the construction of object instances.
