@@ -6,7 +6,7 @@
 
 Hermes is a library designed to streamline the generation of fluent object builders for your Java classes. Employing a declarative approach, it produces a straightforward Domain Specific Language (DSL) to facilitate the construction of object instances.
 
-## Update your pom.xml file
+## Adding Hermes to your pom file
 
 ```xml
 <repositories>
