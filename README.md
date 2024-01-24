@@ -6,12 +6,24 @@
 
 Hermes is a Maven plugin designed to streamline the generation of fluent object builders for your Java classes. Employing a declarative approach, it produces a straightforward Domain Specific Language (DSL) to facilitate the construction of object instances.
 
+## Update your pom.xml file
 
-## Annotations
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
 
-- **@DSLRoot** - Indicates the intention to create a builder for the annotated class;
-- **@DSLProperty** - Customizes the method name generated for a specific field. The default is the original field name;
-- **@DSLIgnore** - Marks a field to be excluded when generating DSL code;
+<dependencies>
+    <dependency>
+        <groupId>com.github.victorhsr</groupId>
+        <artifactId>hermes-maven-plugin</artifactId>
+        <version>Tag</version>
+    </dependency>
+</dependencies>
+```
 
 ## Usage
 Suppose we have classes `Person`, `Address` and `MetaDataWrapper` annotated with `@DSLRoot` and `@DSLProperty`:
@@ -67,6 +79,12 @@ Person personFromDsl =
 
 Note that there's no need to instantiate `Address` or `MetaDataWrapper`, and more descriptive names for Person's fields can be used.
 
+## Annotations
+
+- **@DSLRoot** - Indicates the intention to create a builder for the annotated class;
+- **@DSLProperty** - Customizes the method name generated for a specific field. The default is the original field name;
+- **@DSLIgnore** - Marks a field to be excluded when generating DSL code;
+
 # Comparison with Traditional Java Classes
 
 The equivalent implementation in traditional Java code involves a considerable amount of boilerplate:
@@ -102,7 +120,7 @@ private Address buildAddress() {
 ```
 That's a lot of code, almost twice the lines of our previous implementation. The Hermes Maven Plugin significantly reduces this boilerplate, providing a more concise and readable alternative.
 
-# Using Lombok for Comparison
+# Using Lombok for comparison
 
 An alternative approach using Lombok involves a cleaner syntax but may lack readability and customization
 
