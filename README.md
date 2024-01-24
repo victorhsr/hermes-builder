@@ -1,10 +1,10 @@
-# Hermes Maven Plugin
-[![Maven Build](https://github.com/victorhsr/hermes-maven-plugin/workflows/Maven%20Build/badge.svg)](https://github.com/victorhsr/hermes-maven-plugin/actions?query=workflow%3A"Maven+Build")
-[![Coverage Status](https://coveralls.io/repos/github/victorhsr/hermes-maven-plugin/badge.svg)](https://coveralls.io/github/victorhsr/hermes-maven-plugin)
+# Hermes Builder
+[![Maven Build](https://github.com/victorhsr/hermes-builder/workflows/Maven%20Build/badge.svg)](https://github.com/victorhsr/hermes-builder/actions?query=workflow%3A"Maven+Build")
+[![Coverage Status](https://coveralls.io/repos/github/victorhsr/hermes-builder/badge.svg)](https://coveralls.io/github/victorhsr/hermes-builder)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/mit)
-[![](https://jitpack.io/v/victorhsr/hermes-maven-plugin.svg)](https://jitpack.io/#victorhsr/hermes-maven-plugin)
+[![](https://jitpack.io/v/victorhsr/hermes-builder.svg)](https://jitpack.io/#victorhsr/hermes-builder)
 
-Hermes is a Maven plugin designed to streamline the generation of fluent object builders for your Java classes. Employing a declarative approach, it produces a straightforward Domain Specific Language (DSL) to facilitate the construction of object instances.
+Hermes is a library designed to streamline the generation of fluent object builders for your Java classes. Employing a declarative approach, it produces a straightforward Domain Specific Language (DSL) to facilitate the construction of object instances.
 
 ## Update your pom.xml file
 
@@ -19,8 +19,8 @@ Hermes is a Maven plugin designed to streamline the generation of fluent object 
 <dependencies>
     <dependency>
         <groupId>com.github.victorhsr</groupId>
-        <artifactId>hermes-maven-plugin</artifactId>
-        <version>Tag</version>
+        <artifactId>hermes-builder</artifactId>
+        <version>1.0.0-beta</version>
     </dependency>
 </dependencies>
 ```
@@ -118,7 +118,7 @@ private Address buildAddress() {
     return address;
 }
 ```
-That's a lot of code, almost twice the lines of our previous implementation. The Hermes Maven Plugin significantly reduces this boilerplate, providing a more concise and readable alternative.
+That's a lot of code, almost twice the lines of our previous implementation. The Hermes Builder significantly reduces this boilerplate, providing a more concise and readable alternative.
 
 # Using Lombok for comparison
 
@@ -150,4 +150,4 @@ private Address buildAddress() {
             .build()
 }
 ```
-In summary, the Hermes Maven Plugin strikes a balance between conciseness and customization, offering a powerful solution for building objects in a declarative manner.
+In summary, the Hermes Builder strikes a balance between conciseness and customization, offering a powerful solution for building objects in a declarative manner.
