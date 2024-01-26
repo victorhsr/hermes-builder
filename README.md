@@ -26,6 +26,7 @@ Hermes is a library designed to streamline the generation of fluent object build
 ```
 
 ## Usage
+
 Suppose we have classes `Person`, `Address` and `MetaDataWrapper` annotated with `@DSLRoot` and `@DSLProperty`:
 
 ```Java
@@ -60,7 +61,7 @@ public class MetaDataWrapper<K, V> {
 }
 ```
 
-The plugin enables creating a `Person` instance succinctly:
+Once you compile your project, the library will generate the classes `PersonDSL`, `AddressDSL` and `MataDataWrapperDSL` which are the builders. With it we can succinctly create an instance of `Person`:
 ```Java
 Person personFromDsl = 
     person(
@@ -77,7 +78,7 @@ Person personFromDsl =
     );
 ````
 
-Note that there's no need to instantiate `Address` or `MetaDataWrapper`, and more descriptive names for Person's fields can be used.
+Note that there's no need to instantiate `Address` or `MetaDataWrapper`, and more descriptive names for Person's fields can be used. All the building methods are static methods and high order functions.
 
 ## Annotations
 
