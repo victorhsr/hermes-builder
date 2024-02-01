@@ -22,20 +22,23 @@
                 frameborder="0" scrolling="0" width="120" height="20" title="Hermes Builder on Github"></iframe></a>
     </div>
 
-
     <div id="parse_wrapper">
         <button id="parse_btn" onclick="onParse()"
             title="Click to parse the JSON file to Hermes Builder Java code">Parse</button>
     </div>
+
     <div class="code_wrapper">
         <div class="code_area_wapper">
             <div class="code_area_title">JSON</div>
             <textarea id="input" wrap="off" placeholder="Insert your JSON here and click on 'Parse'"></textarea>
         </div>
+
         <div class="code_area_wapper">
             <div class="code_area_title right">Hermes Builder - Java code</div>
             <textarea id="output" wrap="off" placeholder="Hermes Builder Java code will be placed here"
                 disabled></textarea>
+            <button id="copy_btn" title="Copy code" onclick="onCopy()">Copy code</button>
+            <div id="copy_feedback">Code copied!</div>
         </div>
     </div>
 </body>
@@ -44,9 +47,36 @@
 
 
 <style>
+    #copy_btn {
+        position: absolute;
+        top: 0;
+        right: 15px;
+        cursor: pointer;
+        visibility: hidden;
+    }
+
+    #copy_feedback {
+        position: absolute;
+        top: 30px;
+        right: 15px;
+        background-color: #FFFFE0;
+        border-color: white;
+        font-weight: bolder;
+        padding: 0px 3px 0px 3px;
+        visibility: hidden;
+    }
+
+    .material-symbols-outlined {
+        font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+    }
+
     #github {
         position: absolute;
-        top:10px;
+        top: 10px;
         right: 0;
     }
 
@@ -139,13 +169,25 @@
 
 <script>
 
+    function onCopy() {
+        var copyText = document.getElementById("output");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); /* For mobile devices */
+        navigator.clipboard.writeText(copyText.value);
+
+        document.getElementById("copy_feedback").style.visibility = "visible"
+        setTimeout(() => {
+            document.getElementById("copy_feedback").style.visibility = "hidden"
+        }, 1500);
+    }
+
     function onParse() {
         const jsonObject = getInputValue();
         if (!jsonObject) return;
 
         const result = convertJSONToPattern(jsonObject);
         document.getElementById("output").value = result
-
+        document.getElementById("copy_btn").style.visibility = "visible"
     }
 
     function getInputValue() {
