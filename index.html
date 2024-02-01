@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>JSON to Hermes Builder Java code</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Satisfy&family=Source+Sans+3:wght@300;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <h1>JSON to <span id="hermes-name">Hermes Builder</span></h1>
+        <small>Get your Java builder from your JSON file!</small>
+    </header>
+
+    <div id="github">
+        <a href="" class="sm:inline-block"><iframe
+                src="https://ghbtns.com/github-btn.html?user=victorhsr&amp;repo=hermes-builder&amp;type=star&amp;count=true"
+                frameborder="0" scrolling="0" width="120" height="20" title="Hermes Builder on Github"></iframe></a>
+    </div>
+
+
+    <div id="parse_wrapper">
+        <button id="parse_btn" onclick="onParse()"
+            title="Click to parse the JSON file to Hermes Builder Java code">Parse</button>
+    </div>
+    <div class="code_wrapper">
+        <div class="code_area_wapper">
+            <div class="code_area_title">JSON</div>
+            <textarea id="input" wrap="off" placeholder="Insert your JSON here and click on 'Parse'"></textarea>
+        </div>
+        <div class="code_area_wapper">
+            <div class="code_area_title right">Hermes Builder - Java code</div>
+            <textarea id="output" wrap="off" placeholder="Hermes Builder Java code will be placed here"
+                disabled></textarea>
+        </div>
+    </div>
+</body>
+
+</html>
+
+
+<style>
+    #github {
+        position: absolute;
+        top:10px;
+        right: 0;
+    }
+
+    body {
+        background-color: #EEEEEE;
+        font-family: 'Source Sans 3', sans-serif;
+    }
+
+    header {
+        /* display: flex;
+        justify-content: center;
+        flex-direction: row; */
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    header small {
+        font-size: 17px;
+    }
+
+    .code_wrapper {
+        display: flex;
+        width: 100%;
+        height: 80vh;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    .code_area_wapper {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        width: 48%;
+        position: relative;
+    }
+
+    .code_area_title {
+        position: absolute;
+        top: -20px;
+        background-color: #FFFFE0;
+        border-color: white;
+        font-weight: bolder;
+        padding: 0px 3px 0px 3px;
+    }
+
+    .code_area_title.right {
+        right: 0;
+    }
+
+    .code_area_wapper textarea {
+        height: 90%;
+        width: 100%;
+        top: 0;
+        margin-top: 0;
+        padding-top: 0;
+        position: absolute;
+        padding: 0;
+        margin: 0;
+    }
+
+    #parse_wrapper {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    #parse_btn {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    #parse_btn:hover {
+        background-color: #45a049;
+    }
+
+    #hermes-name {
+        font-family: 'Satisfy', cursive;
+        letter-spacing: 0.5px;
+        color: blue;
+        font-size: 1.2em;
+    }
+</style>
+
+<script>
+
+    function onParse() {
+        const jsonObject = getInputValue();
+        if (!jsonObject) return;
+
+        const result = convertJSONToPattern(jsonObject);
+        document.getElementById("output").value = result
+
+    }
+
+    function getInputValue() {
+        try {
+            return JSON.parse(document.getElementById("input").value);
+        } catch (error) {
+            alert('Inform a valid JSON as input')
+            return null;
+        }
+    }
+
+    function convertJSONToPattern(obj) {
+        let pattern = '';
+
+        function buildPattern(obj, indent = 1) {
+            for (const key in obj) {
+                const value = obj[key];
+
+                if (!Array.isArray(value) && typeof value === 'object') {
+                    pattern += `${buildIndentation(indent)}${key}(\n`;
+                    buildPattern(value, indent + 1);
+                    pattern += `${buildIndentation(indent)})${indent > 1 ? ',' : ''}\n`;
+                } else {
+                    const formattedValue = formatValue(value);
+                    pattern += `${buildIndentation(indent)}${key}(${formattedValue})${indent > 1 ? ',' : ''}\n`;
+                }
+            }
+        }
+
+        buildPattern(obj);
+
+        return `(\n${pattern})`;
+    }
+
+    function buildIndentation(size) {
+        return "    ".repeat(size)
+    }
+
+    function formatValue(value) {
+        if (typeof value === 'string') {
+            return `\"${value}\"`;
+        }
+
+        if (Array.isArray(value)) {
+            return "your_list";
+        }
+
+        return value;
+    }
+</script>
