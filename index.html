@@ -203,16 +203,20 @@
         let pattern = '';
 
         function buildPattern(obj, indent = 1) {
-            for (const key in obj) {
+            const keys = Object.keys(obj);
+
+            for (let i = 0; i < keys.length; i++) {
+                const key = keys[i];
                 const value = obj[key];
+                const addComma = i < (keys.length - 1);
 
                 if (!Array.isArray(value) && typeof value === 'object') {
                     pattern += `${buildIndentation(indent)}${key}(\n`;
                     buildPattern(value, indent + 1);
-                    pattern += `${buildIndentation(indent)})${indent > 1 ? ',' : ''}\n`;
+                    pattern += `${buildIndentation(indent)})${addComma ? ',' : ''}\n`;
                 } else {
                     const formattedValue = formatValue(value);
-                    pattern += `${buildIndentation(indent)}${key}(${formattedValue})${indent > 1 ? ',' : ''}\n`;
+                    pattern += `${buildIndentation(indent)}${key}(${formattedValue})${addComma ? ',' : ''}\n`;
                 }
             }
         }
