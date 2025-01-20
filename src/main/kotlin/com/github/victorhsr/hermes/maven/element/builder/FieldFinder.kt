@@ -19,29 +19,37 @@ object FieldFinder {
     }
 
     private fun resolveFields(clazz: TypeElement): List<Element> {
-        val setMethodsMap = getFieldsWithSetterMethod(clazz)
+        val setMethods = getSetMethodsForFields(clazz)
 
         return clazz.enclosedElements
             .filter { it.kind.isField }
-            .filter { setMethodsMap.contains(buildSetMethodName(it.simpleName.toString())) }
+            .filter { setMethods.contains(buildSetMethodName(it.simpleName.toString())) }
             .toList()
     }
 
-    private fun getFieldsWithSetterMethod(clazz: TypeElement): Set<String> {
+    private fun getSetMethodsForFields(clazz: TypeElement): Set<String> {
         val setMethodsFromFieldsAnnotatedWithLombok = getAnnotatedFieldsWithLombok(clazz)
-        val setMethodsFromClassOrRegularMethods =
+        val setMethodsFromClassAnnotationOrRegularMethods =
             if (isLombokManagedClass(clazz))
-                return clazz.enclosedElements
-                    .filter { it.kind == ElementKind.FIELD }
-                    .map { buildSetMethodName(it.simpleName.toString()) }
-                    .toSet()
-            else clazz.enclosedElements
-                .filter { it.kind == ElementKind.METHOD }
-                .filter { it.simpleName.startsWith(SET_METHOD_PREFIX) }
-                .map { it.simpleName.toString() }
-                .toSet()
+                return getSetMethodsFromClassAnnotation(clazz)
+            else getSetMethodsFromRegularMethods(clazz)
 
-        return setMethodsFromFieldsAnnotatedWithLombok + setMethodsFromClassOrRegularMethods
+        return setMethodsFromFieldsAnnotatedWithLombok + setMethodsFromClassAnnotationOrRegularMethods
+    }
+
+    private fun getSetMethodsFromRegularMethods(clazz: TypeElement): Set<String> {
+        return clazz.enclosedElements
+            .filter { it.kind == ElementKind.METHOD }
+            .filter { it.simpleName.startsWith(SET_METHOD_PREFIX) }
+            .map { it.simpleName.toString() }
+            .toSet()
+    }
+
+    private fun getSetMethodsFromClassAnnotation(clazz: TypeElement): Set<String> {
+        return clazz.enclosedElements
+            .filter { it.kind == ElementKind.FIELD }
+            .map { buildSetMethodName(it.simpleName.toString()) }
+            .toSet()
     }
 
     private fun getAnnotatedFieldsWithLombok(clazz: TypeElement): Set<String> {

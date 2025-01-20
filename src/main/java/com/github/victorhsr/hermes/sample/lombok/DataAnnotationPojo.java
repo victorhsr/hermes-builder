@@ -11,9 +11,4 @@ public class DataAnnotationPojo {
 
     private String foo;
     private Boolean bar;
-
-    public static void main(String[] args) {
-        DataAnnotationPojo dataAnnotationPojo = new DataAnnotationPojo();
-        dataAnnotationPojo.setFoo("foo");
-    }
 }
