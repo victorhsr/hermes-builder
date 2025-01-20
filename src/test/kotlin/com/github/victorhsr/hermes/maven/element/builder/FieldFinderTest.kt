@@ -21,8 +21,10 @@ class FieldFinderTest {
         private const val ADDRESS_FIELD_NAME = "address"
     }
 
+    // TODO update unit tests
+
     @Test
-    fun `should filter elements that are fields and have 'set' methods and ignore the ones annoted with DSLIgnore`() {
+    fun `should filter elements that are fields and have 'set' methods and ignore the ones annotated with DSLIgnore`() {
         // given
         val clazz: TypeElement = mockk<TypeElement>()
 
