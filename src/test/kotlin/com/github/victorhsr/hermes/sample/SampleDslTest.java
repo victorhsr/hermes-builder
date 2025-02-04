@@ -10,8 +10,8 @@ import java.util.List;
 
 import static com.github.victorhsr.hermes.sample.AddressDSL.houseNumber;
 import static com.github.victorhsr.hermes.sample.AddressDSL.street;
-import static com.github.victorhsr.hermes.sample.ExpectedCustomGenericKeyValuePairDSL.key;
-import static com.github.victorhsr.hermes.sample.ExpectedCustomGenericKeyValuePairDSL.value;
+import static com.github.victorhsr.hermes.sample.CustomGenericKeyValuePairDSL.key;
+import static com.github.victorhsr.hermes.sample.CustomGenericKeyValuePairDSL.value;
 import static com.github.victorhsr.hermes.sample.PersonDSL.*;
 import static com.github.victorhsr.hermes.sample.lombok.DataAnnotationPojoDSL.*;
 import static com.github.victorhsr.hermes.sample.lombok.SetterAnnotationOnFieldPojoDSL.*;
