@@ -17,7 +17,7 @@ class DSLGeneratorTest {
 
     @Test
     fun `should generate the DSL by calling JavaFile#writeTo`() {
-        // given
+        //   given
         val classInfo: com.github.victorhsr.hermes.core.ClassInfo = mockk<com.github.victorhsr.hermes.core.ClassInfo>()
         val classInfoList: List<com.github.victorhsr.hermes.core.ClassInfo> = listOf(classInfo)
         val filer: Filer = mockk<Filer>()
