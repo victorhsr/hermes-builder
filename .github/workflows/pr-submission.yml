@@ -41,5 +41,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: code-coverage-report-markdown
-          path: */coverage-results.md
+          path: '*/coverage-results.md'
           retention-days: 1
