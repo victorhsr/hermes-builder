@@ -1,7 +1,7 @@
 name: Maven Build
 
 on:
-  push:
+  pull_request:
     branches:
       - main
 
@@ -22,5 +22,9 @@ jobs:
       - name: Generate coverage report
         run: mvn test jacoco:report
 
-      - name: Coverage report submission
-        run: mvn coveralls:report --define repoToken=${{ secrets.COVERALLS_REPO_TOKEN }}
+      - name: Check coverage threshold
+        uses: 5monkeys/code-coverage-action@v1
+        with:
+          coverage-files: target/site/jacoco/jacoco.xml
+          minimum-coverage: 90
+          fail-on-coverage-decrease: true
