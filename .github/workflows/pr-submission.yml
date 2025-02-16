@@ -17,13 +17,22 @@ jobs:
           java-version: '16'
           distribution: 'temurin'
 
-      - name: Generate JaCoCo report
-        run: mvn test org.jacoco:jacoco-maven-plugin:0.8.8:prepare-agent install
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build with Maven
+        run: mvn -B install --file pom.xml
 
       - name: Enforce 90% coverage
         uses: PavanMudigonda/jacoco-reporter@v5.0
         with:
           coverage_results_path: '**/jacoco.xml'
+          coverage_report_title: 'Test coverage results'
+          coverage_report_name: 'Test coverage results'
           minimum_coverage: 90
           fail_below_threshold: true
           github_token: ${{ secrets.GITHUB_TOKEN }}
