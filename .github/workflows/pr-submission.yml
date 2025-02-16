@@ -28,8 +28,13 @@ jobs:
         run: mvn -B install --file pom.xml
 
       - name: Check coverage
+        id: jacoco
         uses: madrapps/jacoco-report@v1.7.1
         with:
           paths: '**/target/site/jacoco/jacoco.xml'
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: 90
+
+      - name: Fail workflow if coverage is low
+        if: ${{ steps.jacoco.outputs.coverage-overall < 90 }}
+        run: echo "❌ Coverage below 90%" && exit 1
