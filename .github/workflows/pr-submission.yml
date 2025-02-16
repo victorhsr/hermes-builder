@@ -27,28 +27,9 @@ jobs:
       - name: Build with Maven
         run: mvn -B install --file pom.xml
 
-      - name: Enforce 90% coverage
-        uses: PavanMudigonda/jacoco-reporter@v5.0
+      - name: Check coverage
+        uses: madrapps/jacoco-report@v1.7.1
         with:
-          coverage_results_path: '**/jacoco.xml'
-          coverage_report_title: 'Test coverage results'
-          coverage_report_name: 'Test coverage results'
-          minimum_coverage: 90
-          fail_below_threshold: true
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Add Jacocoo report to workflow run summary
-        run: |
-          echo "| Outcome | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
-          echo "| Code Coverage % | ${{ steps.jacoco_reporter.outputs.coverage_percentage }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| :heavy_check_mark: Number of Lines Covered | ${{ steps.jacoco_reporter.outputs.covered_lines }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| :x: Number of Lines Missed | ${{ steps.jacoco_reporter.outputs.missed_lines }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Total Number of Lines | ${{ steps.jacoco_reporter.outputs.total_lines }} |" >> $GITHUB_STEP_SUMMARY
-
-      - name: Upload Code Coverage Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: code-coverage-report-markdown
-          path: '*/coverage-results.md'
-          retention-days: 1
+          paths: '**/target/site/jacoco/jacoco.xml'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 90
