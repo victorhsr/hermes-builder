@@ -24,13 +24,13 @@ public class SampleDslTest {
     @Nested
     class NativeJavaTests {
 
-        public static final int AGE = 20;
-        public static final String NAME = "Victor";
-        public static final List<String> PHONE_NUMBERS = List.of("1234");
-        public static final String CHARACTERISTIC_KEY = "hair";
-        public static final String CHARACTERISTIC_VALUE = "brown";
-        public static final int HOUSE_NUMBER = 99;
-        public static final String STREET = "my-street";
+        private static final int AGE = 20;
+        private static final String NAME = "Victor";
+        private static final List<String> PHONE_NUMBERS = List.of("1234");
+        private static final String CHARACTERISTIC_KEY = "hair";
+        private static final String CHARACTERISTIC_VALUE = "brown";
+        private static final int HOUSE_NUMBER = 99;
+        private static final String STREET = "my-street";
 
         @Test
         public void testPerson() {
