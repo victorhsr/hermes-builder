@@ -1,4 +1,4 @@
-name: Maven Build
+name: PR Submission
 
 on:
   pull_request:
