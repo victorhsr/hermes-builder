@@ -20,7 +20,7 @@ Hermes is a library designed to streamline the generation of fluent object build
     <dependency>
         <groupId>com.github.victorhsr</groupId>
         <artifactId>hermes-builder</artifactId>
-        <version>1.0.0-beta</version>
+        <version>1.1.0-beta</version>
     </dependency>
 </dependencies>
 ```
