@@ -12,7 +12,7 @@ import javax.lang.model.util.ElementFilter
 import javax.tools.Diagnostic
 
 @AutoService(Processor::class)
-@SupportedSourceVersion(SourceVersion.RELEASE_11)
+@SupportedSourceVersion(SourceVersion.RELEASE_16)
 @SupportedAnnotationTypes(DSL_ROOT_QUALIFIED_NAME)
 class DSLProcessor : AbstractProcessor() {
 
